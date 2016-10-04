@@ -9,12 +9,25 @@ app.insertRecord = function(name,path) {
                       app.onError);
     });
 }
+app.truncateCache = function() {
+    app.db.transaction(function(tx) {
+        tx.executeSql("DELETE FROM cache_files",
+                      app.onSuccess,
+                      app.onError);
+    });
+}
 app.onSuccess = function(tx, r) {
     console.log("Your SQLite query was successful!");
 }
 
 app.onError = function(tx, e) {
     console.log("SQLite Error: " + e.message);
+}
+// cross-browser compatibility http://stackoverflow.com/questions/280634/endswith-in-javascript
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
 }
 var Application = {
   initApplication: function() {
@@ -269,32 +282,53 @@ var Application = {
   initAddFeedPage: function() {
 	  console.log("in initAddFeedPage");
 	$("#clearCacheBtn").click(function(){
-		console.log("in clearCacheBtn");
+		console.log("droidsung: in clearCacheBtn nik-" + JSON.stringify(cordova.file.externalRootDirectory));
 		// http://stackoverflow.com/questions/29678186/how-to-get-documents-in-an-android-directory-that-phonegap-will-see/29905718#29905718
 		var localURLs    = [
 		                    //cordova.file.dataDirectory,
 		                    //cordova.file.documentsDirectory,
 		                    //cordova.file.externalApplicationStorageDirectory,
 		                    //cordova.file.externalCacheDirectory,
-		                    cordova.file.externalRootDirectory
+		                    //cordova.file.externalRootDirectory,
 		                    //cordova.file.externalDataDirectory,
-		                   // cordova.file.sharedDirectory,
-		                   // cordova.file.syncedDataDirectory
+		                    //cordova.file.sharedDirectory,
+		                   // cordova.file.syncedDataDirectory,
+		                   // cordova.file.applicationDirectory,
+		                   // cordova.file.applicationStorageDirectory,
+		                   // cordova.file.cacheDirectory,
+		                   // cordova.file.tempDirectory,
+		                    'file:///storage/extSdCard/eschool2go/'
 		                ];
 		var index = 0;
 		var i;
 		var statusStr = "";
+		console.log("droidsung: before openDatabase");
 		app.db = window.sqlitePlugin.openDatabase({name: "eschooltogoSQLitee.db", location: 'default'});
+		console.log("droidsung: after openDatabase");
 		app.db.transaction(function(transaction) {
 			transaction.executeSql('CREATE TABLE IF NOT EXISTS cache_files (id integer primary key, name text, path text)', [],
 			function(tx, result) {
-				console.log("dbase Table created successfully: ");
-			alert("Table created successfully");
+				// Truncate table
+				app.truncateCache();
+				console.log("dbase Table truncated successfully: ");
 			},
 			function(error) {
-			alert("Error occurred while creating the table.");
+			  alert("Error occurred while creating the table.");
 			});
 			});
+		var addFileEntryMain = function (entry) {
+			console.log("nik- in addFileEntryMain");
+			var dirReader = entry.createReader();
+		    dirReader.readEntries(
+		        function (entries) {
+		        	//console.log("nik- entries: "+ JSON.stringify(entries));
+		        	for (i = 0; i < entries.length; i++) {
+		        		console.log("nik- entries fullPath: "+ entries[i].fullPath);
+		        	}
+		        }
+		        );
+			//addFileEntry(entry);
+		};
 		var addFileEntry = function (entry) {
 			console.log("nik- in addFileEntry");
 		    var dirReader = entry.createReader();
@@ -311,6 +345,9 @@ var Application = {
 		                   fileStr += (entries[i].fullPath + "<br>"); // << replace with something useful
 		                   index++;
 		                   console.log("dbase before insertinggg: ");
+		                   if(entries[i].fullPath.indexOf('s1') !== -1){
+		                	   console.log("nik- s1 entries: "+ JSON.stringify(entries[i]));
+		                   }
 		                   app.insertRecord(entries[i].name,entries[i].fullPath);
 		                   /*
 		                   var title="sundaravel";
@@ -473,7 +510,7 @@ var Application = {
 	  console.log("dbase parent: " + categParent);
 	  if(categParent.indexOf("list-feeds.html") !== -1){
 		  // Contains list-feeds.html.
-	  categParent = "eschool2go";
+	  categParent = "storage/extSdCard/eschool2go";
   		}
 	// change ID to be dynamic
 	    var hyphened_categParent = categParent.replace(/\//g, '-');
@@ -483,6 +520,7 @@ var Application = {
 	    console.log("dbase 2: " + hyphened_categParent);
 	  app.db = window.sqlitePlugin.openDatabase({name: "eschooltogoSQLitee.db", location: 'default'});
 	  app.db.transaction(function(transaction) {
+		  //transaction.executeSql("SELECT * FROM cache_files", [], function (tx, results) {
 		  transaction.executeSql("SELECT * FROM cache_files WHERE path LIKE '/" + categParent + "/%'", [], function (tx, results) {
 			  var len = results.rows.length, i;
 			  console.log("dbase len: " + len);
@@ -505,14 +543,20 @@ var Application = {
 			  });
 			  console.log("dbase uniqueListItems " + JSON.stringify(uniqueListItems));
 			  $.each(uniqueListItems, function(i, el){
+				  console.log("dbase in each loop: "+ el);
 				  // If el is a file with an extension for video file, 
 				  if(el.endsWith(".mp4")){
-					  var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///sdcard/'+categParent+'/'+el+'\')">' + el + '</span></li>';
+					  console.log("dbase file " + el);
+					  var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///'+categParent+'/'+el+'\')">' + el + '</span></li>';
 				  }else{
+					  console.log("dbase directory " + el);
 					  var htmlItems = '<li><a href="list-feeds.html?parent=' + categParent + "/" + el + '">' + el + '</a></li>';
 			  	  }
+				  //var htmlItems = '<li><a href="list-feeds.html?parent=' + categParent + "/" + el + '">' + el + '</a></li>';
+				  console.log("dbase htmlItems " + htmlItems);
 				  $feedsList.append(htmlItems);
 			  });
+			  console.log("dbase before refresh: ");
 			  $feedsList.listview('refresh');
 		  }, null);
 	  });
