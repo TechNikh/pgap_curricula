@@ -5,34 +5,23 @@
       <title>Add Feed</title>
    </head>
    <body>
-      <div id="add-feed-page" data-role="page" data-title="Add Feed">
+      <div id="settings-page" data-role="page" data-title="Add Feed">
          <header data-role="header">
             <a href="index.html" data-icon="home" data-iconpos="notext">Home</a>
-            <h1>Add Feed</h1>
+            <h1>Settings</h1>
          </header>
          <div data-role="content">
             <p>
-               Use this form to add a new feed Feed. It's easy as writing a name, the URL and then click "Add Feed".
+               Use this form to customize the app settings.
             </p>
-            <form id="add-feed-form" name="add-feed-form" action="add-feed.html">
+            <form id="settings-form" name="settings-form" action="settings.html">
                <div data-role="fieldcontain">
-                  <label for="feed-name">Feed Name:</label>
-                  <input type="text" id="feed-name" name="feed-name"/>
+                  <label for="sdcard-loc">SD Card Location:</label>
+                  <input type="text" id="sdcard-loc" name="sdcard-loc"/>
                </div>
-               <div data-role="fieldcontain">
-                  <label for="feed-url">Feed URL:</label>
-                  <input type="url" id="feed-url" name="feed-url"/>
-               </div>
-               <div data-role="fieldcontain">
-                  <label for="feed-file">Content folder:</label>
-                  <input type="file" id="feed-file" name="feed-file"/>
-               </div>
-               <a href="fileBrowser.html" id="browseBtn" data-role="button"
-   data-inline="true">Browse</a>
-                <a href="#" id="clearCacheBtn" data-role="button"
-   data-inline="true">Clear Cache</a>
-   <div id="results">results</div>
-               <input type="submit" value="Download" />
+                <a href="#" id="clearCacheBtn" data-role="button" data-inline="true">Clear Cache</a>
+                <div id="results">results</div>
+               <input type="submit" value="Save" />
             </form>
          </div>
       </div>
