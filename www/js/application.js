@@ -1,21 +1,73 @@
 var fileSystem, folderList, basePath = '';
 var app = {};
 app.db = null;
-app.insertRecord = function(name,path) {
+// app.insertVideoRecord(entries[i].name, filePathWithoutExt, fileExt);
+app.insertVideoRecord = function(name,path,extension) {
     app.db.transaction(function(tx) {
-        tx.executeSql("INSERT INTO cache_files(name, path) VALUES (?,?)",
-                      [name, path],
+        tx.executeSql("INSERT INTO cache_video_files(name, path, extension) VALUES (?,?,?)",
+                      [name, path, extension],
                       app.onSuccess,
                       app.onError);
     });
 }
-app.truncateCache = function() {
+app.insertImageRecord = function(name,path,extension) {
     app.db.transaction(function(tx) {
-        tx.executeSql("DELETE FROM cache_files",
+        tx.executeSql("INSERT INTO cache_image_files(name, path, extension) VALUES (?,?,?)",
+                      [name, path, extension],
                       app.onSuccess,
                       app.onError);
     });
 }
+// app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt, doc.title);
+app.insertYAMLrecord = function(name, path, extension, displayName, description) {
+    app.db.transaction(function(tx) {
+        tx.executeSql("INSERT INTO cache_yaml_files(name, path, extension, display_name, description) VALUES (?,?,?,?,?)",
+                      [name, path, extension, displayName, description],
+                      app.onSuccess,
+                      app.onError);
+    });
+}
+app.prepareCacheTables = function() {
+	// Drop table
+	app.db.transaction(function(tx) {
+        tx.executeSql("DROP TABLE IF EXISTS cache_video_files",
+                      app.onSuccess,
+                      app.onError);
+    });
+	// Create table
+	app.db.transaction(function(tx) {
+		tx.executeSql('CREATE TABLE IF NOT EXISTS cache_video_files (id integer primary key, name text, path text, extension text)',
+			          app.onSuccess,
+			          app.onError);
+	});
+
+	// Drop table
+	app.db.transaction(function(tx) {
+        tx.executeSql("DROP TABLE IF EXISTS cache_image_files",
+                      app.onSuccess,
+                      app.onError);
+    });
+	// Create table
+	app.db.transaction(function(tx) {
+		tx.executeSql('CREATE TABLE IF NOT EXISTS cache_image_files (id integer primary key, name text, path text, extension text)',
+			          app.onSuccess,
+			          app.onError);
+	});
+
+	// Drop table
+	app.db.transaction(function(tx) {
+        tx.executeSql("DROP TABLE IF EXISTS cache_yaml_files",
+                      app.onSuccess,
+                      app.onError);
+    });
+	// Create table
+	app.db.transaction(function(tx) {
+		tx.executeSql('CREATE TABLE IF NOT EXISTS cache_yaml_files (id integer primary key, name text, path text, extension text, display_name text, description text)',
+			          app.onSuccess,
+			          app.onError);
+	});
+}
+
 app.onSuccess = function(tx, r) {
     console.log("Your SQLite query was successful!");
 }
@@ -79,10 +131,10 @@ var Application = {
       })
       .on('pageinit', '#aurelio-page', function() {
         Application.initAurelioPage();
-      })
+      });/*
       .on('backbutton', function() {
         $.mobile.changePage('index.html');
-      });
+      });*/
     Application.openLinksInApp();
   },
   buildFolders: function(fs) {
@@ -305,17 +357,8 @@ var Application = {
 		console.log("droidsung: before openDatabase");
 		app.db = window.sqlitePlugin.openDatabase({name: "eschooltogoSQLitee.db", location: 'default'});
 		console.log("droidsung: after openDatabase");
-		app.db.transaction(function(transaction) {
-			transaction.executeSql('CREATE TABLE IF NOT EXISTS cache_files (id integer primary key, name text, path text)', [],
-			function(tx, result) {
-				// Truncate table
-				app.truncateCache();
-				console.log("dbase Table truncated successfully: ");
-			},
-			function(error) {
-			  alert("Error occurred while creating the table.");
-			});
-			});
+		app.prepareCacheTables();
+
 		var addFileEntryMain = function (entry) {
 			console.log("nik- in addFileEntryMain");
 			var dirReader = entry.createReader();
@@ -328,6 +371,36 @@ var Application = {
 		        }
 		        );
 			//addFileEntry(entry);
+		};
+		var mdFileParse = function (fileEntry) {
+			console.log("dbase in mdFileParse"+ JSON.stringify(fileEntry));
+			fileEntry.file(function (file) {
+		        var reader = new FileReader();
+
+		        reader.onloadend = function() {
+		            console.log("Successful file read mdFileParse: " + this.result);
+		            var mdFileData = this.result;
+		            if (mdFileData) {
+			            var YAMLfileData = mdFileData.substring(4, mdFileData.lastIndexOf("---"));
+			            var description = mdFileData.substring(mdFileData.lastIndexOf("---")+3);
+			            //console.log("YAMLfileData mdFileParse: **" + YAMLfileData + "%%");
+			            var doc = jsyaml.load(YAMLfileData);
+			            console.log("yaml parsed mdFileParse: " + JSON.stringify(doc));
+			            var filePathWithoutExt = fileEntry.fullPath.substring(1, fileEntry.fullPath.lastIndexOf("."));
+			            var fileExt = fileEntry.fullPath.substring(fileEntry.fullPath.lastIndexOf(".")+1);
+			            console.log("filePathWithoutExt mdFileParse: " + filePathWithoutExt);
+			            console.log("fileExt mdFileParse: " + fileExt);
+			            console.log("description mdFileParse: " + description);
+			            app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt, doc.title, description);
+		            }
+		        };
+
+		        reader.readAsText(file);
+
+		    }, onErrorReadFile);
+		};
+		var onErrorReadFile = function (e) {
+			console.log("dbase in onErrorReadFile mdFileParse"+ JSON.stringify(e));
 		};
 		var addFileEntry = function (entry) {
 			console.log("nik- in addFileEntry");
@@ -345,17 +418,34 @@ var Application = {
 		                   fileStr += (entries[i].fullPath + "<br>"); // << replace with something useful
 		                   index++;
 		                   console.log("dbase before insertinggg: ");
-		                   if(entries[i].fullPath.indexOf('s1') !== -1){
-		                	   console.log("nik- s1 entries: "+ JSON.stringify(entries[i]));
+						  /*
+						   * If there is a .md file in the current location, 
+						   * Get the title from the YAML file
+						   */
+		                   // Files that don't start with . for deleted files
+		                   if(entries[i].name.endsWith(".md") && (entries[i].name.substring(0,1) != '.')){
+		                	   console.log("dbase mdFileFullPath first char: **" + entries[i].name.substring(0,1) + "^^");
+		                     var mdFileFullPath = entries[i].fullPath;
+		                     //mdFileFullPath: /storage/extSdCard/eschool2go/_videos/Khan Academy/math/algebra/algebra-functions/analyzing-functions-alg1/_01wqwsb66E.md58
+		                     console.log("dbase mdFileFullPath: " + mdFileFullPath);
+		                     //Check for the file. 
+		                     window.resolveLocalFileSystemURL('file://' + mdFileFullPath, mdFileParse, addError);
+		                   }else if(entries[i].name.endsWith(".mp4")){
+		                	   var filePathWithoutExt = entries[i].fullPath.substring(1, entries[i].fullPath.lastIndexOf("."));
+		   		               var fileExt = entries[i].fullPath.substring(entries[i].fullPath.lastIndexOf(".")+1);
+		                	   app.insertVideoRecord(entries[i].name, filePathWithoutExt, fileExt);
+		                   }else if(entries[i].name.endsWith(".jpg") || entries[i].name.endsWith(".png")){
+		                	   var filePathWithoutExt = entries[i].fullPath.substring(1, entries[i].fullPath.lastIndexOf("."));
+		   		               var fileExt = entries[i].fullPath.substring(entries[i].fullPath.lastIndexOf(".")+1);
+		                	   app.insertImageRecord(entries[i].name, filePathWithoutExt, fileExt);
 		                   }
-		                   app.insertRecord(entries[i].name,entries[i].fullPath);
 		                   /*
 		                   var title="sundaravel";
 		                   var desc="phonegap freelancer";
 		                   app.db.transaction(function(transaction) {
 		                	   console.log("dbase inserting: "+ JSON.stringify(entries[i]));
 		                	   //console.log("dbase inserting: "+entries[i].name + entries[i].fullPath);  
-		                   var executeQuery = "INSERT INTO cache_files (name, path) VALUES (?,?)";
+		                   var executeQuery = "INSERT INTO cache_video_files (name, path) VALUES (?,?)";
 		                   transaction.executeSql(executeQuery, [entries[i].name,entries[i].fullPath]
 		                   , function(tx, result) {
 		                   //alert('Inserted');
@@ -368,7 +458,7 @@ var Application = {
 		                   //var app.db = window.sqlitePlugin.openDatabase({name: "eschooltogoSQLite.db", location: 'default'});
 		                  /* app.db.transaction(function(transaction) {
 		                	   console.log("dbase inserting: "+entries[i].name + " -> " + entries[i].fullPath);
-		                	   var executeQuery = "INSERT INTO cache_files (name, path) VALUES (?,?)";
+		                	   var executeQuery = "INSERT INTO cache_video_files (name, path) VALUES (?,?)";
 		                	   transaction.executeSql(executeQuery, [entries[i].name,entries[i].fullPath]
 		                	   , function(tx, result) {
 		                	   //alert('Inserted');
@@ -510,47 +600,79 @@ var Application = {
 	  console.log("dbase parent: " + categParent);
 	  if(categParent.indexOf("list-feeds.html") !== -1){
 		  // Contains list-feeds.html.
-	  categParent = "storage/extSdCard/eschool2go";
+	  categParent = "storage/extSdCard/eschool2go/_videos";
   		}
+	  console.log("dbase parent: " + categParent);
 	// change ID to be dynamic
 	    var hyphened_categParent = categParent.replace(/\//g, '-');
+	    // Replace spaces with -
+	    hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
 	    $('#feeds-list').attr("id","feeds-list-"+hyphened_categParent);
 	    console.log("dbase 1: " + hyphened_categParent);
 	    var $feedsList = $('#feeds-list-'+hyphened_categParent);
 	    console.log("dbase 2: " + hyphened_categParent);
 	  app.db = window.sqlitePlugin.openDatabase({name: "eschooltogoSQLitee.db", location: 'default'});
 	  app.db.transaction(function(transaction) {
-		  //transaction.executeSql("SELECT * FROM cache_files", [], function (tx, results) {
-		  transaction.executeSql("SELECT * FROM cache_files WHERE path LIKE '/" + categParent + "/%'", [], function (tx, results) {
+		  //transaction.executeSql("SELECT * FROM cache_video_files", [], function (tx, results) {
+		  transaction.executeSql("SELECT cache_video_files.*, cache_yaml_files.display_name, cache_image_files.name AS image_file_name FROM cache_video_files LEFT JOIN cache_yaml_files ON cache_video_files.path = cache_yaml_files.path LEFT JOIN cache_image_files ON cache_video_files.path = cache_image_files.path WHERE cache_video_files.path LIKE '" + categParent + "/%'", [], function (tx, results) {
+			  /*
+			   * results all files recursively within all sub folders of categParent
+			   * We need to list only the files & folders in the current categParent folder
+			   */
 			  var len = results.rows.length, i;
 			  console.log("dbase len: " + len);
 			  //$("#rowCount").append(len);
 			  var listItemsArray = [];
+			  var listItemsObj = {}
 			  for (i = 0; i < len; i++){
 				  //$("#TableData").append("<tr><td>"+results.rows.item(i).id+"</td><td>"+results.rows.item(i).name+"</td><td>"+results.rows.item(i).path+"</td></tr>");
-				  console.log("dbase path: " + results.rows.item(i).path);
-				  var filePathArray = results.rows.item(i).path.split("/");
+				  var filePathWithOutExt = results.rows.item(i).path;
+				  var filePathWithExt = filePathWithOutExt + "." + results.rows.item(i).extension;
+				  console.log("dbase path: " + filePathWithExt);
+				  var filePathArray = filePathWithExt.split("/");
 				  var categParentNumOfSlashes = (categParent.split("/").length - 1);
+				  var filePathNumOfSlashes = (filePathArray.length - 1);
 				  console.log("dbase categParentNumOfSlashes: " + categParentNumOfSlashes);
-				  var listItemName = filePathArray[2 + categParentNumOfSlashes];
+				  var listItemName = filePathArray[1 + categParentNumOfSlashes];
 				  console.log("dbase listItemName: " + listItemName);
 				  listItemsArray.push(listItemName);
+				  // Find if listItemName isFile or isDir
+				  console.log("dbase listItemsObj categParent: " + categParent);
+				  console.log("dbase listItemsObj filePathWithExt: " + filePathWithExt);
+				  console.log("dbase listItemsObj categParentNumOfSlashes: " + categParentNumOfSlashes);
+				  console.log("dbase listItemsObj filePathNumOfSlashes: " + filePathNumOfSlashes);
+				  if(filePathNumOfSlashes == (categParentNumOfSlashes + 1)){
+					  listItemsObj[listItemName] = {"isFile": true, "ext": results.rows.item(i).extension, "name": results.rows.item(i).display_name, "image": results.rows.item(i).image_file_name};
+				  }else{
+					  // listItemName is directory
+					  listItemsObj[listItemName] = {"isFile": false, "name": listItemName};
+				  }
 			  	}
+			  console.log("dbase listItemsObj " + JSON.stringify(listItemsObj));
 			  // Remove duplicates http://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array
-			  var uniqueListItems = [];
+			  /*var uniqueListItems = [];
 			  $.each(listItemsArray, function(i, el){
 			      if($.inArray(el, uniqueListItems) === -1) uniqueListItems.push(el);
 			  });
-			  console.log("dbase uniqueListItems " + JSON.stringify(uniqueListItems));
-			  $.each(uniqueListItems, function(i, el){
+			  console.log("dbase uniqueListItems " + JSON.stringify(uniqueListItems));*/
+			  $.each(listItemsObj, function(i, el){
 				  console.log("dbase in each loop: "+ el);
 				  // If el is a file with an extension for video file, 
-				  if(el.endsWith(".mp4")){
+				  if(el.isFile == true){
 					  console.log("dbase file " + el);
-					  var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///'+categParent+'/'+el+'\')">' + el + '</span></li>';
+					  var file_display_name = i;
+					  if (el.name){
+						  file_display_name = el.name;
+					  }
+					  var image_html = '';
+					  if (el.image){
+						  image_html = '<img width="230px" src="file:///'+categParent+'/'+el.image+'" />';
+					  }
+					  var htmlItems = '<li>'+image_html+'<span onclick="window.plugins.fileOpener.open(\'file:///'+categParent+'/'+i+'\')">' + file_display_name + '</span></li>';
 				  }else{
+					  // If there is no period in the file name, it might be a directory.
 					  console.log("dbase directory " + el);
-					  var htmlItems = '<li><a href="list-feeds.html?parent=' + categParent + "/" + el + '">' + el + '</a></li>';
+					  var htmlItems = '<li><a href="list-feeds.html?parent=' + categParent + "/" + i + '">' + el.name + '</a></li>';
 			  	  }
 				  //var htmlItems = '<li><a href="list-feeds.html?parent=' + categParent + "/" + el + '">' + el + '</a></li>';
 				  console.log("dbase htmlItems " + htmlItems);
