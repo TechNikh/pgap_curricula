@@ -2,10 +2,10 @@
 <html>
    <head>
       <meta charset="UTF-8">
-      <title>Add Feed</title>
+      <title>Settings</title>
    </head>
    <body>
-      <div id="settings-page" data-role="page" data-title="Add Feed">
+      <div id="settings-page" data-role="page" data-title="Settings">
          <header data-role="header">
             <a href="index.html" data-icon="home" data-iconpos="notext">Home</a>
             <h1>Settings</h1>
@@ -17,11 +17,13 @@
             <form id="settings-form" name="settings-form" action="settings.html">
                <div data-role="fieldcontain">
                   <label for="sdcard-loc">SD Card Location:</label>
-                  <input type="text" id="sdcard-loc" name="sdcard-loc"/>
+                  <input type="text" id="sdcard-loc" name="sdcard-loc" value="storage/extSdCard/eschool2go/" />
                </div>
-                <a href="#" id="clearCacheBtn" data-role="button" data-inline="true">Clear Cache</a>
-                <div id="results">results</div>
                <input type="submit" value="Save" />
+               <a href="#" id="clearCacheBtn" data-role="button" data-inline="true">Clear Cache</a>
+               <a href="#" id="copyDBtoSDcard" data-role="button" data-inline="true">Copy DB to SD Card</a>
+               <a href="#" id="copyDBfromSDcard" data-role="button" data-inline="true">Copy DB from SD Card</a>
+               <div id="results"></div>
             </form>
          </div>
       </div>
