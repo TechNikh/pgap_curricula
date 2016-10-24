@@ -6,6 +6,11 @@ This application is written using HTML, CSS and JavaScript with the support of s
 ## Download App ##
 https://build.phonegap.com/apps/2320226
 
+## Setup ##
+1. Install Application using QR code at https://build.phonegap.com/apps/2320226
+2. Download sample data from QR code at https://github.com/TechNikh/eschool2go-phonegap/blob/master/sdcard/qrcode.37265408.png into your SD card.
+3. Configure your application settings by entering & saving SD card location at https://technikh.github.io/eschool2go-phonegap/settings.html like screen in the app.
+
 ## Compilation ##
 eSchool2Go has been developed with the assumption that the compilation will be done using [Adobe PhoneGap Build](http://build.phonegap.com/), but with few adjustments you'll be able to compile with every platform specific environment.
 
