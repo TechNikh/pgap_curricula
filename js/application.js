@@ -21,7 +21,7 @@ var Application = {
     }
   },
   initSettingsPage : function() {
-    if(sdcardLoc){
+    if (sdcardLoc) {
       $('#sdcard-loc').val(sdcardLoc);
     }
     $("#copyDBtoSDcard").click(
@@ -160,13 +160,17 @@ var Application = {
                                 var image_html = '';
                                 if (el.image) {
                                   image_html = '<img width="230px" src="file:///'
-                                      + sdcardLoc + categParent + '/' + el.image + '" />';
+                                      + sdcardLoc
+                                      + categParent
+                                      + '/'
+                                      + el.image + '" />';
                                 }
                                 var htmlItems = '<li>'
                                     + image_html
                                     + '<span onclick="window.plugins.fileOpener.open(\'file:///'
-                                    + sdcardLoc + categParent + '/' + i + '\')">'
-                                    + file_display_name + '</span></li>';
+                                    + sdcardLoc + categParent + '/' + i
+                                    + '\')">' + file_display_name
+                                    + '</span></li>';
                               } else {
                                 // If there is no period in the file name, it
                                 // might be a directory.
@@ -193,63 +197,70 @@ var Application = {
   addFileEntry : function(entry) {
     // console.log("nik- in addFileEntry");
     var dirReader = entry.createReader();
-    dirReader.readEntries(
-        function(entries) {
-          // console.log("nik- entries: "+ JSON.stringify(entries));
-          var fileStr = "";
-          var i;
-          for (i = 0; i < entries.length; i++) {
-            if (entries[i].isDirectory === true) {
-              // Recursive -- call back into this subdirectory
-              Application.addFileEntry(entries[i]);
-            } else {
-              fileStr += (entries[i].fullPath + "<br>"); // << replace with
-                                                          // something useful
-              // index++;
-              // console.log("dbase before insertinggg: ");
-              /*
-               * If there is a .md file in the current location, Get the title
-               * from the YAML file
-               */
-              // Files that don't start with . for deleted files
-              if (entries[i].name.endsWith(".md")
-                  && (entries[i].name.substring(0, 1) != '.')) {
-                //console.log("dbase mdFileFullPath first char: **" + entries[i].name.substring(0,1) + "^^");
-                var mdFileFullPath = entries[i].fullPath;
-                //mdFileFullPath: /storage/extSdCard/eschool2go/_videos/Khan Academy/math/algebra/algebra-functions/analyzing-functions-alg1/_01wqwsb66E.md58
-                //console.log("dbase mdFileFullPath: " + mdFileFullPath);
-                //Check for the file. 
-                window.resolveLocalFileSystemURL('file://' + mdFileFullPath,
-                    AppFile.mdFileParse, Application.fail);
-              } else if (entries[i].name.endsWith(".mp4")) {
-                var filePathWithoutExt = entries[i].fullPath.substring(1,
-                    entries[i].fullPath.lastIndexOf("."));
-                // Don’t store SD card location in Database
-                filePathWithoutExt = filePathWithoutExt.substring(
-                    filePathWithoutExt.lastIndexOf("/eschool2go/")+12);
-                var fileExt = entries[i].fullPath.substring(entries[i].fullPath
-                    .lastIndexOf(".") + 1);
-                app.insertVideoRecord(entries[i].name, filePathWithoutExt,
-                    fileExt);
-              } else if (entries[i].name.endsWith(".jpg")
-                  || entries[i].name.endsWith(".png")) {
-                var filePathWithoutExt = entries[i].fullPath.substring(1,
-                    entries[i].fullPath.lastIndexOf("."));
-                filePathWithoutExt = filePathWithoutExt.substring(
-                    filePathWithoutExt.lastIndexOf("/eschool2go/")+12);
-                var fileExt = entries[i].fullPath.substring(entries[i].fullPath
-                    .lastIndexOf(".") + 1);
-                app.insertImageRecord(entries[i].name, filePathWithoutExt,
-                    fileExt);
+    dirReader
+        .readEntries(
+            function(entries) {
+              // console.log("nik- entries: "+ JSON.stringify(entries));
+              var fileStr = "";
+              var i;
+              for (i = 0; i < entries.length; i++) {
+                if (entries[i].isDirectory === true) {
+                  // Recursive -- call back into this subdirectory
+                  Application.addFileEntry(entries[i]);
+                } else {
+                  fileStr += (entries[i].fullPath + "<br>"); // << replace with
+                  // something useful
+                  // index++;
+                  // console.log("dbase before insertinggg: ");
+                  /*
+                   * If there is a .md file in the current location, Get the
+                   * title from the YAML file
+                   */
+                  // Files that don't start with . for deleted files
+                  if (entries[i].name.endsWith(".md")
+                      && (entries[i].name.substring(0, 1) != '.')) {
+                    // console.log("dbase mdFileFullPath first char: **" +
+                    // entries[i].name.substring(0,1) + "^^");
+                    var mdFileFullPath = entries[i].fullPath;
+                    // mdFileFullPath:
+                    // /storage/extSdCard/eschool2go/_videos/Khan
+                    // Academy/math/algebra/algebra-functions/analyzing-functions-alg1/_01wqwsb66E.md58
+                    // console.log("dbase mdFileFullPath: " + mdFileFullPath);
+                    // Check for the file.
+                    window.resolveLocalFileSystemURL(
+                        'file://' + mdFileFullPath, AppFile.mdFileParse,
+                        Application.fail);
+                  } else if (entries[i].name.endsWith(".mp4")) {
+                    var filePathWithoutExt = entries[i].fullPath.substring(1,
+                        entries[i].fullPath.lastIndexOf("."));
+                    // Don’t store SD card location in Database
+                    filePathWithoutExt = filePathWithoutExt
+                        .substring(filePathWithoutExt
+                            .lastIndexOf("/eschool2go/") + 12);
+                    var fileExt = entries[i].fullPath
+                        .substring(entries[i].fullPath.lastIndexOf(".") + 1);
+                    app.insertVideoRecord(entries[i].name, filePathWithoutExt,
+                        fileExt);
+                  } else if (entries[i].name.endsWith(".jpg")
+                      || entries[i].name.endsWith(".png")) {
+                    var filePathWithoutExt = entries[i].fullPath.substring(1,
+                        entries[i].fullPath.lastIndexOf("."));
+                    filePathWithoutExt = filePathWithoutExt
+                        .substring(filePathWithoutExt
+                            .lastIndexOf("/eschool2go/") + 12);
+                    var fileExt = entries[i].fullPath
+                        .substring(entries[i].fullPath.lastIndexOf(".") + 1);
+                    app.insertImageRecord(entries[i].name, filePathWithoutExt,
+                        fileExt);
+                  }
+                }
               }
-            }
-          }
-          // add this directory's contents to the status
-          $("#results").append(fileStr);
-        }, Application.fail);
+              // add this directory's contents to the status
+              $("#results").append(fileStr);
+            }, Application.fail);
   },
   checkRequirements : function() {
-    //console.log(navigator);
+    // console.log(navigator);
     return true;
     if (navigator.connection.type === Connection.NONE) {
       return false;

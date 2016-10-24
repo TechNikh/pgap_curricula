@@ -71,7 +71,7 @@ app.prepareCacheTables = function() {
 }
 
 app.onSuccess = function(tx, r) {
-  //console.log("Your SQLite query was successful!");
+  // console.log("Your SQLite query was successful!");
 }
 
 app.onError = function(tx, e) {
