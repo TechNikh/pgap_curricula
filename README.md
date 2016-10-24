@@ -3,13 +3,13 @@ eSchool2Go provides you a way to access offline content..
 
 This application is written using HTML, CSS and JavaScript with the support of several frameworks like jQuery, jQuery Mobile and Cordova (also known as PhoneGap).
 
-## Download App ##
-https://build.phonegap.com/apps/2320226
-
-## Setup ##
-1. Install Application using QR code at https://build.phonegap.com/apps/2320226
-2. Download sample data from QR code at https://github.com/TechNikh/eschool2go-phonegap/blob/master/sdcard/qrcode.37265408.png into your SD card.
-3. Configure your application settings by entering & saving SD card location at https://technikh.github.io/eschool2go-phonegap/settings.html like screen in the app.
+## Download & Setup the App ##
+1. Download & Install Application at https://github.com/TechNikh/eschool2go-phonegap/raw/master/apk/android-debug.apk. You can also use this QR code ![QR code to download APK file](https://github.com/TechNikh/eschool2go-phonegap/raw/master/apk/qrcode-to-download-android-app.png)
+2. Download sample data at https://github.com/TechNikh/eschool2go-phonegap/raw/master/sdcard/eschool2go.zip into your SD card. You can also use this QR code ![QR code to download samle data zip file](https://github.com/TechNikh/eschool2go-phonegap/raw/master/sdcard/qrcode-to-download-sample-content-for-sdcard.png)
+3. Extract the zip file.
+4. Configure your application settings by entering & saving "SD Card Location" at Settings screen in the app.
+5. Press the Clear cache button after saving "SD Card Location".
+6. Access the content by clicking the "Browse" button from Home screen.
 
 ## Compilation ##
 eSchool2Go has been developed with the assumption that the compilation will be done using [Adobe PhoneGap Build](http://build.phonegap.com/), but with few adjustments you'll be able to compile with every platform specific environment.
