@@ -1,3 +1,5 @@
+var sdcardLoc = '';
+
 var Application = {
   initApplication : function() {
     $(document).on('pageinit', '#settings-page', function() {
@@ -33,7 +35,7 @@ var Application = {
         function() {
           // console.log("droidbase: in copyDBfromSDcard");
           var settings = JSON.parse(window.localStorage.getItem('settings'));
-          var sdcardLoc = settings.sdcardLoc;
+          sdcardLoc = settings.sdcardLoc;
           // console.log("nik-success sdcardLoc"+sdcardLoc);
           window.resolveLocalFileSystemURL("file:///" + sdcardLoc
               + "_databases/eschooltogoSQLitee.db", AppFile.copyDBfromSDcard,
@@ -44,7 +46,7 @@ var Application = {
           // console.log("droidsung: in clearCacheBtn nik-" +
           // JSON.stringify(cordova.file.externalRootDirectory));
           var settings = JSON.parse(window.localStorage.getItem('settings'));
-          var sdcardLoc = settings.sdcardLoc;
+          sdcardLoc = settings.sdcardLoc;
 
           // console.log("droidsung: before openDatabase");
           app.db = window.sqlitePlugin.openDatabase({
@@ -60,7 +62,7 @@ var Application = {
         });
     $('#settings-form').submit(function(event) {
       event.preventDefault();
-      var sdcardLoc = $('#sdcard-loc').val().trim();
+      sdcardLoc = $('#sdcard-loc').val().trim();
       var settings = {
         "sdcardLoc" : sdcardLoc
       };
@@ -71,10 +73,8 @@ var Application = {
   initListExplorerPage : function(categParent) {
     // console.log("dbase parent: " + categParent);
     if (categParent.indexOf("explorer.html") !== -1) {
-      var settings = JSON.parse(window.localStorage.getItem('settings'));
-      var sdcardLoc = settings.sdcardLoc;
       // Contains explorer.html.
-      categParent = sdcardLoc + "_videos";
+      categParent = "_videos";
     }
     // console.log("dbase parent: " + categParent);
     // change ID to be dynamic
@@ -105,14 +105,14 @@ var Application = {
                      * the current categParent folder
                      */
                     var len = results.rows.length, i;
-                    // console.log("dbase len: " + len);
+                     //console.log("dbase len: " + len);
                     // var listItemsArray = [];
                     var listItemsObj = {}
                     for (i = 0; i < len; i++) {
                       var filePathWithOutExt = results.rows.item(i).path;
                       var filePathWithExt = filePathWithOutExt + "."
                           + results.rows.item(i).extension;
-                      // console.log("dbase path: " + filePathWithExt);
+                       //console.log("dbase path: " + filePathWithExt);
                       var filePathArray = filePathWithExt.split("/");
                       var categParentNumOfSlashes = (categParent.split("/").length - 1);
                       var filePathNumOfSlashes = (filePathArray.length - 1);
@@ -155,12 +155,12 @@ var Application = {
                                 var image_html = '';
                                 if (el.image) {
                                   image_html = '<img width="230px" src="file:///'
-                                      + categParent + '/' + el.image + '" />';
+                                      + sdcardLoc + categParent + '/' + el.image + '" />';
                                 }
                                 var htmlItems = '<li>'
                                     + image_html
                                     + '<span onclick="window.plugins.fileOpener.open(\'file:///'
-                                    + categParent + '/' + i + '\')">'
+                                    + sdcardLoc + categParent + '/' + i + '\')">'
                                     + file_display_name + '</span></li>';
                               } else {
                                 // If there is no period in the file name, it
@@ -219,6 +219,9 @@ var Application = {
               } else if (entries[i].name.endsWith(".mp4")) {
                 var filePathWithoutExt = entries[i].fullPath.substring(1,
                     entries[i].fullPath.lastIndexOf("."));
+                // Don’t store SD card location in Database
+                filePathWithoutExt = filePathWithoutExt.substring(
+                    filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
                 var fileExt = entries[i].fullPath.substring(entries[i].fullPath
                     .lastIndexOf(".") + 1);
                 app.insertVideoRecord(entries[i].name, filePathWithoutExt,
@@ -227,6 +230,8 @@ var Application = {
                   || entries[i].name.endsWith(".png")) {
                 var filePathWithoutExt = entries[i].fullPath.substring(1,
                     entries[i].fullPath.lastIndexOf("."));
+                filePathWithoutExt = filePathWithoutExt.substring(
+                    filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
                 var fileExt = entries[i].fullPath.substring(entries[i].fullPath
                     .lastIndexOf(".") + 1);
                 app.insertImageRecord(entries[i].name, filePathWithoutExt,

@@ -62,6 +62,8 @@ var AppFile = {
           //console.log("yaml parsed mdFileParse: " + JSON.stringify(doc));
           var filePathWithoutExt = fileEntry.fullPath.substring(1,
               fileEntry.fullPath.lastIndexOf("."));
+          filePathWithoutExt = filePathWithoutExt.substring(
+              filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
           var fileExt = fileEntry.fullPath.substring(fileEntry.fullPath
               .lastIndexOf(".") + 1);
           //console.log("filePathWithoutExt mdFileParse: " + filePathWithoutExt);
