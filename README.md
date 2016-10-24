@@ -3,6 +3,9 @@ eSchool2Go provides you a way to access offline content..
 
 This application is written using HTML, CSS and JavaScript with the support of several frameworks like jQuery, jQuery Mobile and Cordova (also known as PhoneGap).
 
+## Download App ##
+https://build.phonegap.com/apps/2320226
+
 ## Compilation ##
 eSchool2Go has been developed with the assumption that the compilation will be done using [Adobe PhoneGap Build](http://build.phonegap.com/), but with few adjustments you'll be able to compile with every platform specific environment.
 
