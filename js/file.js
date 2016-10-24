@@ -63,7 +63,7 @@ var AppFile = {
           var filePathWithoutExt = fileEntry.fullPath.substring(1,
               fileEntry.fullPath.lastIndexOf("."));
           filePathWithoutExt = filePathWithoutExt.substring(
-              filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
+              filePathWithoutExt.lastIndexOf("/eschool2go/")+12);
           var fileExt = fileEntry.fullPath.substring(fileEntry.fullPath
               .lastIndexOf(".") + 1);
           //console.log("filePathWithoutExt mdFileParse: " + filePathWithoutExt);

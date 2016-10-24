@@ -16,9 +16,14 @@ var Application = {
   },
   fail : function(error) {
     console.log("nik-error" + error.code + error.message);
-    navigator.notification.alert('error: ' + error.message);
+    if (error.message) {
+      navigator.notification.alert('Error: ' + error.message);
+    }
   },
   initSettingsPage : function() {
+    if(sdcardLoc){
+      $('#sdcard-loc').val(sdcardLoc);
+    }
     $("#copyDBtoSDcard").click(
         function() {
           // console.log("droidbase: in copyDBtoSDcard");
@@ -44,7 +49,7 @@ var Application = {
     $("#clearCacheBtn").click(
         function() {
           // console.log("droidsung: in clearCacheBtn nik-" +
-          // JSON.stringify(cordova.file.externalRootDirectory));
+          // cordova.file.externalRootDirectory);
           var settings = JSON.parse(window.localStorage.getItem('settings'));
           sdcardLoc = settings.sdcardLoc;
 
@@ -105,14 +110,14 @@ var Application = {
                      * the current categParent folder
                      */
                     var len = results.rows.length, i;
-                     //console.log("dbase len: " + len);
+                    // console.log("dbase len: " + len);
                     // var listItemsArray = [];
                     var listItemsObj = {}
                     for (i = 0; i < len; i++) {
                       var filePathWithOutExt = results.rows.item(i).path;
                       var filePathWithExt = filePathWithOutExt + "."
                           + results.rows.item(i).extension;
-                       //console.log("dbase path: " + filePathWithExt);
+                      // console.log("dbase path: " + filePathWithExt);
                       var filePathArray = filePathWithExt.split("/");
                       var categParentNumOfSlashes = (categParent.split("/").length - 1);
                       var filePathNumOfSlashes = (filePathArray.length - 1);
@@ -221,7 +226,7 @@ var Application = {
                     entries[i].fullPath.lastIndexOf("."));
                 // Don’t store SD card location in Database
                 filePathWithoutExt = filePathWithoutExt.substring(
-                    filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
+                    filePathWithoutExt.lastIndexOf("/eschool2go/")+12);
                 var fileExt = entries[i].fullPath.substring(entries[i].fullPath
                     .lastIndexOf(".") + 1);
                 app.insertVideoRecord(entries[i].name, filePathWithoutExt,
@@ -231,7 +236,7 @@ var Application = {
                 var filePathWithoutExt = entries[i].fullPath.substring(1,
                     entries[i].fullPath.lastIndexOf("."));
                 filePathWithoutExt = filePathWithoutExt.substring(
-                    filePathWithoutExt.lastIndexOf(sdcardLoc)+sdcardLoc.length);
+                    filePathWithoutExt.lastIndexOf("/eschool2go/")+12);
                 var fileExt = entries[i].fullPath.substring(entries[i].fullPath
                     .lastIndexOf(".") + 1);
                 app.insertImageRecord(entries[i].name, filePathWithoutExt,
