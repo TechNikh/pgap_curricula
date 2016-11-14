@@ -1,9 +1,92 @@
 var sdcardLoc = '';
 
 var Application = {
+  initWebViewerPage : function(url) {
+    //console.log("url " + url);
+    //$('#web-view-frame').attr("src", url);
+  },
+  initPDFViewerPage : function(url) {
+    //console.log("url " + url);
+    // $('#web-view-frame').attr("src", url);
+    if (!PDFJS.PDFViewer || !PDFJS.getDocument) {
+      console.log('Please build the pdfjs-dist library using\n'
+          + '  `gulp dist`');
+    }
+    // The workerSrc property shall be specified.
+    PDFJS.workerSrc = 'js/pdfjs/build/pdf.worker.js';
+
+    // var DEFAULT_URL = '../../web/compressed.tracemonkey-pldi-09.pdf';
+    //var DEFAULT_URL = 'http://172.27.81.10:3000/js/chapter_1.pdf';
+    var DEFAULT_URL = url;
+    console.log("pdfbase: " + DEFAULT_URL);
+    var SEARCH_FOR = ''; // try 'Mozilla';
+
+    var container = document.getElementById('viewerContainer');
+
+    // (Optionally) enable hyperlinks within PDF files.
+    var pdfLinkService = new PDFJS.PDFLinkService();
+
+    var pdfViewer = new PDFJS.PDFViewer({
+      container : container,
+      linkService : pdfLinkService,
+    });
+    pdfLinkService.setViewer(pdfViewer);
+
+    // (Optionally) enable find controller.
+    var pdfFindController = new PDFJS.PDFFindController({
+      pdfViewer : pdfViewer
+    });
+    pdfViewer.setFindController(pdfFindController);
+
+    container.addEventListener('pagesinit', function() {
+      // We can use pdfViewer now, e.g. let's change default scale.
+      pdfViewer.currentScaleValue = 'page-width';
+
+      if (SEARCH_FOR) { // We can try search for things
+        pdfFindController.executeCommand('find', {
+          query : SEARCH_FOR
+        });
+      }
+    });
+
+    // Loading document.
+    PDFJS
+        .getDocument(DEFAULT_URL)
+        .then(
+            function(pdfDocument) {
+              // Document loaded, specifying document for the viewer and
+              // the (optional) linkService.
+              pdfViewer.setDocument(pdfDocument);
+
+              pdfLinkService.setDocument(pdfDocument, null);
+
+              /*setTimeout(
+                  function() {
+                    //console.log("setTimeout on load");
+                    $('div.textLayer div')
+                        .each(
+                            function() {
+                              var contentfull = $(this).html();
+                              // console.log(contentfull);
+                              var newcontent = contentfull
+                                  .replace(/the/g,
+                                      '<a style="background:red; margin-left: -2px;" href="#">the </a>');
+                              //console.log(newcontent);
+                              $(this).html(newcontent);
+                            });
+
+                  }, 4000);*/
+            });
+  },
   initApplication : function() {
     $(document).on('pageinit', '#settings-page', function() {
       Application.initSettingsPage();
+    }).on('pageinit', '#webviewer-page', function() {
+      var url = this.getAttribute('data-url').replace(/(.*?)link=/g, '');
+      Application.initWebViewerPage(url);
+    }).on('pageinit', '#pdfviewer-page', function() {
+      var url = this.getAttribute('data-url').replace(/(.*?)link=/g, '');
+      Application.initPDFViewerPage(url);
     }).on(
         'pageinit',
         '#list-explorer-page',
@@ -90,11 +173,25 @@ var Application = {
     // console.log("dbase 1: " + hyphened_categParent);
     var $contentsList = $('#contents-list-' + hyphened_categParent);
     // console.log("dbase 2: " + hyphened_categParent);
-    app.db = window.sqlitePlugin.openDatabase({
-      name : "eschooltogoSQLitee.db",
-      location : 'default'
-    });
-    app.db
+    
+    //var htmlItems = '<li><a href="webviewer.html?link=https://en.wikipedia.org/wiki/Credit">my PDF 1</a></li>';
+    //var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///mnt/sdcard/Download/eschool2gosdcard/_videos/_3BnyEr5fG4.mp4\')">my video 1</span></li>';
+    //var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///mnt/sdcard/Download/pdf.pdf\')">my PDF 2</span></li>';
+    //var htmlItems = '<li><a href="pdfviewer.html?link=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf">my PDF</a></li>';
+    //var htmlItems = '<li><a href="pdfviewer.html?link=file:///mnt/sdcard/Download/chapter_2.pdf">my PDF</a></li>';
+    //  http://172.27.94.58:3000/js/pdfjs-web/web/viewer.html?file=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf
+    //var htmlItems = '<li><a href="js/pdfjs-web/web/viewer.html?file=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf">my web PDF 3</a></li>';
+    //var htmlItems = '<li><a href="js/pdfjs-web/web/viewer.html?file=file://mnt/sdcard/Download/chapter_2.pdf">my web PDF 2</a></li>';
+    var htmlItems = '<li><a href="webviewer.html">my webviewer.html PDF 3</a></li>';
+    $contentsList.append(htmlItems);
+    $contentsList.listview('refresh');
+
+    try {
+      app.db = window.sqlitePlugin.openDatabase({
+        name : "eschooltogoSQLitee.db",
+        location : 'default'
+      });
+      app.db
         .transaction(function(transaction) {
           // transaction.executeSql("SELECT * FROM cache_video_files", [],
           // function (tx, results) {
@@ -193,6 +290,14 @@ var Application = {
                     $contentsList.listview('refresh');
                   }, null);
         });
+    }
+    catch(err) {
+      console.log(err);
+      if(navigator.notification){
+        navigator.notification.alert('Error: ' + err);
+      }
+      return false;
+    }
   },
   addFileEntry : function(entry) {
     // console.log("nik- in addFileEntry");

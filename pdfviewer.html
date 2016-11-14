@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explorer</title>
+</head>
+<body>
+	<div id="pdfviewer-page" data-role="page" data-title="Explorer"
+		data-backbtn="true" data-back-btn-text="Back">
+		<!-- /panel -->
+		<header data-role="header" data-backbtn="true"
+			data-back-btn-text="Back">
+			<a href="index.html" data-icon="home" data-iconpos="notext">Home</a>
+			<h1>Explorer</h1>
+			<a href="#mypanel"
+                class="ui-icon-grid ui-btn ui-btn-icon-left" title="Options">Options</a>
+			<a href="#" data-icon="back" data-iconpos="notext" data-rel="back"
+				title="Go back">Back</a> 
+		</header>
+		<div data-role="content">
+			<div id="viewerContainer">
+				<div id="viewer" class="pdfViewer"></div>
+			</div>
+		</div>
+		<div data-role="panel" id="mypanel" data-position="right" data-display="push">
+			<!-- panel content goes here -->
+			Filter Annotations
+		</div>
+	</div>
+</body>
+</html>
