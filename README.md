@@ -11,8 +11,14 @@ This application is written using HTML, CSS and JavaScript with the support of s
 5. Press the Clear cache button after saving "SD Card Location".
 6. Access the content by clicking the "Browse" button from Home screen.
 
-## Compilation ##
-eSchool2Go has been developed with the assumption that the compilation will be done using [Adobe PhoneGap Build](http://build.phonegap.com/), but with few adjustments you'll be able to compile with every platform specific environment.
+## Building APK from Source ##
+1. cordova create eschooltogo
+2. cd eschooltogo
+3. rm -r www/
+4. git clone https://github.com/TechNikh/eschool2go-phonegap.git www
+5. cordova platform add android
+6. cordova run android
+7. For more information on Getting started with a Cordova project, Go to https://cordova.apache.org/#getstarted
 
 ## Compatibility ##
 Being a Cordova based application, it can run on all the platform supported by the framework. To have a complete list of the operating systems supported, take a look at [official documentation page](http://phonegap.com/about/feature).
