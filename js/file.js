@@ -6,12 +6,12 @@ var AppFile = {
     // console.log("nik-success sdcardLoc"+sdcardLoc);
     window.resolveLocalFileSystemURL("file:///" + sdcardLoc,
         function onSuccess(dirEntry) {
-          dirEntry.getDirectory("_databases", {
+          dirEntry.getDirectory(SDCARD_DATABASE_FOLDER_NAME, {
             create : true,
             exclusive : false
           }, function onSuccess(dirEntry) {
             // console.log("nik-success parentEntry"+JSON.stringify(dirEntry));
-            fileEntry.copyTo(dirEntry, 'eschooltogoSQLitee.db', function() {
+            fileEntry.copyTo(dirEntry, "'"+DATABASE_NAME+"'", function() {
               // console.log('copying was successful')
               navigator.notification.alert('Copied database to SD card.');
             }, function() {
@@ -25,24 +25,30 @@ var AppFile = {
   },
   copyDBfromSDcard : function(fileEntry) {
     // console.log("dbase in copyDBfromSDcard"+ JSON.stringify(fileEntry));
-
-    window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory,
+	window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory,
         function onSuccess(dirEntry) {
-          dirEntry.getDirectory("databases", {
+          dirEntry.getDirectory(APPLICATION_DATABASE_FOLDER_NAME, {
             create : true,
             exclusive : false
           }, function onSuccess(dirEntry) {
             // console.log("nik-success parentEntry"+JSON.stringify(dirEntry));
-            fileEntry.copyTo(dirEntry, 'eschooltogoSQLitee.db', function() {
-              navigator.notification.alert('Copied database from SD card.');
-            }, function() {
+            fileEntry.copyTo(dirEntry, "'"+DATABASE_NAME+"'", function() {
+			
+			 if (window.location.href.indexOf(HOME_PAGE_NAME) !== -1) {
+					Application.callClearCache();
+				}else{
+					navigator.notification.alert('Copied database from SD card.');
+				}
+				//navigator.notification.alert('Copied database from SD card.');
+				//Application.callClearCache();
+			}, function() {
               console.log('unsuccessful copying');
-              navigator.notification
-                  .alert('Failed in Copying database from SD card.');
+              //navigator.notification.alert('Failed in Copying database from SD card.');
             });
           }, Application.fail);
 
         }, Application.fail);
+		
   },
   mdFileParse : function(fileEntry) {
     // console.log("dbase in mdFileParse"+ JSON.stringify(fileEntry));

@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html>
    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>eSchool2Go</title>
-      <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css"/>
-      <script src="js/jquery-1.11.1.min.js"></script>
-      <script src="js/jquery.mobile-1.4.5.min.js"></script>
-
-        <link rel="stylesheet" href="js/pdfjs/web/pdf_viewer.css">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>eSchool2Go</title>
+		<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css"/>
+		
+		<!-- All constant and settings value initialize -->
+		<script src="js/settings.js"></script>
+		
+		<script src="js/jquery-1.11.1.min.js"></script>
+		<script src="js/jquery.mobile-1.4.5.min.js"></script>
+		<link rel="stylesheet" href="js/pdfjs/web/pdf_viewer.css">
         <!-- for legacy browsers -->
         <script src="js/pdfjs/web/compatibility.js"></script>
         <script src="js/pdfjs/build/pdf.js"></script>
         <script src="js/pdfjs/web/pdf_viewer.js"></script>
 
-      <script src="cordova.js"></script>
-      <script src="js/database.js"></script>
-      <script src="js/file.js"></script>
-      <script src="js/util.js"></script>
-      <script src="js/application.js"></script>
-      <script src="js/esprima.js"></script>
-      <script src="js/js-yaml.min.js"></script>
+		<script src="cordova.js"></script>
+		<script src="js/database.js"></script>
+		<script src="js/file.js"></script>
+		<script src="js/util.js"></script>
+		<script src="js/application.js"></script>
+		<script src="js/esprima.js"></script>
+		<script src="js/js-yaml.min.js"></script>
       <script>
          $(document)
                  .on('pagebeforecreate', Application.updateIcons)
                  .on('deviceready', Application.initApplication);
-      </script>
+				 
+				 $(document).ready(function() {
+					$(window).load(function() {
+							Application.initListIndexPage(window.location.href);
+						});});
+		</script>
    </head>
    <body>
       <div data-role="page">
-         <header data-role="header" data-back-btn="true">
+         <header data-role="header">
+			<a href="#" id="refreshButton" data-icon="refresh" data-iconpos="notext">Refresh</a>
             <h1>eSchool2Go</h1>
-         </header>
+		 </header>
          <div data-role="content">
-            <p>
-               eSchool2Go provides you a way to Access offline content.
-            </p>
-            <a href="explorer.html" data-role="button">Browse</a>
-            <a href="settings.html" data-role="button">Settings</a>
-         </div>
+            <ul id="contents-list" data-role="listview" data-filter="true"></ul>
+		</div>
          <footer data-role="footer" data-position="fixed">
-            <h2>eSchool2Go</h2>
-         </footer>
+			 <div data-role="navbar">
+				<ul>
+				<!--class="ui-btn-active"-->
+				  <li><a href="index.html" data-icon="home" class="ui-btn-active ui-state-persist">Explore</a></li>
+				  <li><a href="settings.html" data-icon="gear" >Settings</a></li>
+				</ul>
+			  </div>
+		 </footer><!-- /footer -->
       </div>
-   </body>
+	</body>
 </html>
