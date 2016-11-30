@@ -4,18 +4,26 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Explorer</title>
+	  
    </head>
    <body>
       <div id="list-explorer-page" data-role="page" data-title="Explorer" data-backbtn="true" data-back-btn-text="Back">
-         <header data-role="header" data-backbtn="true" data-back-btn-text="Back">
-            <a href="index.html" data-icon="home" data-iconpos="notext">Home</a>
+         <header data-role="header" >
             <h1>Explorer</h1>
-            <a href="#" data-icon="back" data-iconpos="notext" data-rel="back" title="Go back">Back</a>
          </header>
          <div data-role="content">
             <ul id="contents-list" data-role="listview" data-filter="true">
             </ul>
          </div>
+		  <footer data-role="footer" data-position="fixed">
+			 <div data-role="navbar">
+				<ul>
+				<!--class="ui-btn-active"-->
+				  <li><a href="explorer.html" data-icon="home">Explore</a></li>
+				  <li><a href="settings.html" data-icon="gear" >Settings</a></li>
+				</ul>
+			  </div>
+		 </footer><!-- /footer -->
       </div>
    </body>
 </html>
