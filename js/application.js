@@ -80,11 +80,18 @@ var Application = {
   },
  
   initApplication : function() {
-	console.log(window.localStorage.getItem(INSTALLATION_CHECK_VALUE));
-	if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) == undefined) {
-				Application.callFirstTimeApplicationLaunch();
+    var settingsFromLocalStorage = window.localStorage.getItem("'"+SETTING_LOCAL_STORAGE_NAME+"'");
+    if(settingsFromLocalStorage && (settingsFromLocalStorage != null)){
+      settings = JSON.parse(settingsFromLocalStorage);
+      if((settings != null) && settings.sdcardLoc){
+        sdcardLoc = settings.sdcardLoc;
+      }
+    }
+
+    if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) == undefined) {
+				//Application.callFirstTimeApplicationLaunch();
 				window.localStorage.setItem(INSTALLATION_CHECK_VALUE,true);
-	}
+    }
 			
     $(document).on('pageinit', '#'+SETTING_PAGE_ID, function() {
 	   Application.initSettingsPage();
@@ -94,17 +101,17 @@ var Application = {
     }).on('pageinit', '#'+PDF_VIEWER_PAGE_ID, function() {
       var url = this.getAttribute('data-url').replace(/(.*?)link=/g, '');
       Application.initPDFViewerPage(url);
-    })
-	// .on(
-        // 'pageinit',
-        // '#list-explorer-page',
-        // function() {
-          // var categParent = this.getAttribute('data-url').replace(
-              // /(.*?)parent=/g, '');
-          // Application.initListExplorerPage(categParent);
-        // })
-		;
+    }).on('pageinit', '#'+EXPLORER_VIEWER_PAGE_ID, function() {
+      var categParent = this.getAttribute('data-url').replace(/(.*?)parent=/g, '');
+      if (categParent.indexOf(EXPLORER_PAGE_NAME) !== -1) {
+        categParent = VIDEO_FOLDER_NAME;
+      }
+      Application.initListExplorerPage(categParent);
+    });
     Application.openLinksInApp();
+    if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) != undefined) {
+      Application.initListIndexPage();
+    }
 	
 	$("#"+HOME_PAGE_REFRESH_BTN_ID).click(
         function() {
@@ -122,10 +129,15 @@ var Application = {
   callDBFromSDCard : function(){
 	 var settings = JSON.parse(window.localStorage.getItem("'"+SETTING_LOCAL_STORAGE_NAME+"'"));
 	 sdcardLoc = settings.sdcardLoc;
-	 window.resolveLocalFileSystemURL("file:///" + sdcardLoc + SDCARD_DATABASE_FOLDER_NAME + "/"+DATABASE_NAME, AppFile.copyDBfromSDcard,
+	 window.resolveLocalFileSystemURL("file:///" + sdcardLoc + SDCARD_DATABASE_FOLDER_NAME + "/"+DATABASE_NAME, AppFile.callCopyDBfromSDcard,
 		  Application.fail);
 	},
-  
+
+	callCopyDBfromSDcard : function(fileEntry){
+	  AppFile.copyDBfromSDcard(fileEntry);
+    Application.initListIndexPage(window.location.href);
+	},
+
   callFirstTimeApplicationLaunch : function(){
 			// Single folder selector
 			$.mobile.loading('show');
@@ -224,7 +236,6 @@ var Application = {
           // console.log("droidsung: after openDatabase");
           app.prepareCacheTables();
 
-          // console.log("resolveLocalFileSystemURL: " + sdcardLoc);
           window.resolveLocalFileSystemURL("file:///" + sdcardLoc,
               Application.addFileEntry, Application.fail);
 			  window.localStorage.setItem(INSTALLATION_CHECK_VALUE,true);
@@ -239,148 +250,6 @@ var Application = {
       navigator.notification.alert('Settings saved.');
     });
   },
-  
-  // initListExplorerPage : function(categParent) {
-    // // console.log("dbase parent: " + categParent);
-    // if (categParent.indexOf("explorer.html") !== -1) {
-      // // Contains explorer.html.
-      // categParent = "_videos";
-    // }
-    // // console.log("dbase parent: " + categParent);
-    // // change ID to be dynamic
-    // var hyphened_categParent = categParent.replace(/\//g, '-');
-    // // Replace spaces with -
-    // hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
-    // $('#contents-list').attr("id", "contents-list-" + hyphened_categParent);
-    // // console.log("dbase 1: " + hyphened_categParent);
-    // var $contentsList = $('#contents-list-' + hyphened_categParent);
-    // // console.log("dbase 2: " + hyphened_categParent);
-    
-    // //var htmlItems = '<li><a href="webviewer.html?link=https://en.wikipedia.org/wiki/Credit">my PDF 1</a></li>';
-    // //var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///mnt/sdcard/Download/eschool2gosdcard/_videos/_3BnyEr5fG4.mp4\')">my video 1</span></li>';
-    // //var htmlItems = '<li><span onclick="window.plugins.fileOpener.open(\'file:///mnt/sdcard/Download/pdf.pdf\')">my PDF 2</span></li>';
-    // //var htmlItems = '<li><a href="pdfviewer.html?link=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf">my PDF</a></li>';
-    // //var htmlItems = '<li><a href="pdfviewer.html?link=file:///mnt/sdcard/Download/chapter_2.pdf">my PDF</a></li>';
-    // //  http://172.27.94.58:3000/js/pdfjs-web/web/viewer.html?file=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf
-    // //var htmlItems = '<li><a href="js/pdfjs-web/web/viewer.html?file=http://build.opencurricula.technikh.com/sites/default/files/articles/pdfs/chapter_1.pdf">my web PDF 3</a></li>';
-    // //var htmlItems = '<li><a href="js/pdfjs-web/web/viewer.html?file=file://mnt/sdcard/Download/chapter_2.pdf">my web PDF 2</a></li>';
-    // var htmlItems = '<li><a href="webviewer.html">my webviewer.html PDF 3</a></li>';
-    // $contentsList.append(htmlItems);
-    // $contentsList.listview('refresh');
-
-    // try {
-      // app.db = window.sqlitePlugin.openDatabase({
-        // name : "eschooltogoSQLitee.db",
-        // location : 'default'
-      // });
-      // app.db
-        // .transaction(function(transaction) {
-          // // transaction.executeSql("SELECT * FROM cache_video_files", [],
-          // // function (tx, results) {
-          // transaction
-              // .executeSql(
-                  // "SELECT cache_video_files.*, cache_yaml_files.display_name, cache_image_files.name AS image_file_name FROM cache_video_files LEFT JOIN cache_yaml_files ON cache_video_files.path = cache_yaml_files.path LEFT JOIN cache_image_files ON cache_video_files.path = cache_image_files.path WHERE cache_video_files.path LIKE '"
-                      // + categParent + "/%'",
-                  // [],
-                  // function(tx, results) {
-                    // /*
-                     // * results all files recursively within all sub folders of
-                     // * categParent We need to list only the files & folders in
-                     // * the current categParent folder
-                     // */
-                    // var len = results.rows.length, i;
-                    // // console.log("dbase len: " + len);
-                    // // var listItemsArray = [];
-                    // var listItemsObj = {}
-                    // for (i = 0; i < len; i++) {
-                      // var filePathWithOutExt = results.rows.item(i).path;
-                      // var filePathWithExt = filePathWithOutExt + "."
-                          // + results.rows.item(i).extension;
-                      // // console.log("dbase path: " + filePathWithExt);
-                      // var filePathArray = filePathWithExt.split("/");
-                      // var categParentNumOfSlashes = (categParent.split("/").length - 1);
-                      // var filePathNumOfSlashes = (filePathArray.length - 1);
-                      // // console.log("dbase categParentNumOfSlashes: " +
-                      // // categParentNumOfSlashes);
-                      // var listItemName = filePathArray[1 + categParentNumOfSlashes];
-                      // // console.log("dbase listItemName: " + listItemName);
-                      // // listItemsArray.push(listItemName);
-                      // // Find if listItemName isFile or isDir
-                      // if (filePathNumOfSlashes == (categParentNumOfSlashes + 1)) {
-                        // listItemsObj[listItemName] = {
-                          // "isFile" : true,
-                          // "ext" : results.rows.item(i).extension,
-                          // "name" : results.rows.item(i).display_name,
-                          // "image" : results.rows.item(i).image_file_name
-                        // };
-                      // } else {
-                        // // listItemName is directory
-                        // listItemsObj[listItemName] = {
-                          // "isFile" : false,
-                          // "name" : listItemName
-                        // };
-                      // }
-                    // }
-                    // // console.log("dbase listItemsObj " +
-                    // // JSON.stringify(listItemsObj));
-                    // $
-                        // .each(
-                            // listItemsObj,
-                            // function(i, el) {
-                              // // console.log("dbase in each loop: "+ el);
-                              // // If el is a file with an extension for video
-                              // // file,
-                              // if (el.isFile == true) {
-                                // // console.log("dbase file " + el);
-                                // var file_display_name = i;
-                                // if (el.name) {
-                                  // file_display_name = el.name;
-                                // }
-                                // var image_html = '';
-                                // if (el.image) {
-                                  // image_html = '<img width="230px" src="file:///'
-                                      // + sdcardLoc
-                                      // + categParent
-                                      // + '/'
-                                      // + el.image + '" />';
-                                // }
-                                // var htmlItems = '<li>'
-                                    // + image_html
-                                    // + '<span onclick="window.plugins.fileOpener.open(\'file:///'
-                                    // + sdcardLoc + categParent + '/' + i
-                                    // + '\')">' + file_display_name
-                                    // + '</span></li>';
-                              // } else {
-                                // // If there is no period in the file name, it
-                                // // might be a directory.
-                                // // console.log("dbase directory " + el);
-                                // var htmlItems = '<li><a href="explorer.html?parent='
-                                    // + categParent
-                                    // + "/"
-                                    // + i
-                                    // + '">'
-                                    // + el.name
-                                    // + '</a></li>';
-                              // }
-                              // // var htmlItems = '<li><a
-                              // // href="explorer.html?parent=' + categParent +
-                              // // "/" + el + '">' + el + '</a></li>';
-                              // // console.log("dbase htmlItems " + htmlItems);
-                              // $contentsList.append(htmlItems);
-                            // });
-                    // // console.log("dbase before refresh: ");
-                    // $contentsList.listview('refresh');
-                  // }, null);
-        // });
-    // }
-    // catch(err) {
-      // console.log(err);
-      // if(navigator.notification){
-        // navigator.notification.alert('Error: ' + err);
-      // }
-      // return false;
-    // }
-  // },
 
   addFileEntry : function(entry) {
     // console.log("nik- in addFileEntry");
@@ -499,21 +368,16 @@ var Application = {
     catch(err) {
       return false;
     }
- },
- 
-  initListIndexPage : function(categParent) {
- 
-	if (categParent.indexOf(HOME_PAGE_NAME) !== -1) {
-      categParent = VIDEO_FOLDER_NAME;
-    }
+  },
+  initListExplorerPage : function(categParent, listview_id) {
+    listview_id = typeof listview_id !== 'undefined' ? listview_id : EXPLORER_LISTVIEW_ID;
     var hyphened_categParent = categParent.replace(/\//g, '-');
     hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
-	
-	
-    $('#contents-list').attr("id", "contents-list-" + hyphened_categParent);
-    var $contentsList = $('#contents-list-' + hyphened_categParent);
-    var htmlItems = '<li><a href="webviewer.html">my webviewer.html PDF 3</a></li>';
-	$contentsList.empty().append(htmlItems).listview('refresh');
+
+    $('#'+listview_id).attr("id", listview_id+"-" + hyphened_categParent);
+    var $contentsList = $('#'+listview_id+'-' + hyphened_categParent);
+    var htmlItems = '<li><a href="webviewer.html">1my webviewer.html PDF 3</a></li>';
+    $contentsList.empty().append(htmlItems).listview('refresh');
     //$contentsList.listview('refresh');
 
     try {
@@ -588,7 +452,7 @@ var Application = {
                               $contentsList.append(htmlItems);
                             });
                    $contentsList.listview('refresh');
-				   $.mobile.loading('hide');
+           $.mobile.loading('hide');
                   }, null);
         });
     }
@@ -599,5 +463,11 @@ var Application = {
       }
       return false;
     }
+  },
+  initListIndexPage : function(categParent) {
+    if (!categParent || (categParent.indexOf(HOME_PAGE_NAME) !== -1)) {
+      categParent = VIDEO_FOLDER_NAME;
+    }
+    Application.initListExplorerPage(categParent, 'index-contents-list');
   },  
 };

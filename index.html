@@ -28,27 +28,21 @@
          $(document)
                  .on('pagebeforecreate', Application.updateIcons)
                  .on('deviceready', Application.initApplication);
-				 
-				 $(document).ready(function() {
-					$(window).load(function() {
-							Application.initListIndexPage(window.location.href);
-						});});
 		</script>
    </head>
    <body>
       <div data-role="page">
          <header data-role="header">
-			<a href="#" id="refreshButton" data-icon="refresh" data-iconpos="notext">Refresh</a>
             <h1>eSchool2Go</h1>
 		 </header>
          <div data-role="content">
-            <ul id="contents-list" data-role="listview" data-filter="true"></ul>
+            <ul id="index-contents-list" data-role="listview" data-filter="true"></ul>
 		</div>
          <footer data-role="footer" data-position="fixed">
 			 <div data-role="navbar">
 				<ul>
 				<!--class="ui-btn-active"-->
-				  <li><a href="index.html" data-icon="home" class="ui-btn-active ui-state-persist">Explore</a></li>
+				  <li><a href="explorer.html" data-icon="home" class="ui-btn-active ui-state-persist">Explore</a></li>
 				  <li><a href="settings.html" data-icon="gear" >Settings</a></li>
 				</ul>
 			  </div>
