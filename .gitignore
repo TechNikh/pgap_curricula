@@ -3,6 +3,7 @@
 
 # Eclipse
 .project
+.idea
 
 # Node
 npm-debug.log

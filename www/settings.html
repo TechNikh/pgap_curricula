@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <title>Settings</title>
+   </head>
+   <body>
+      <div id="settings-page" data-role="page" data-title="Settings">
+         <header data-role="header">
+            <h1>Settings</h1>
+         </header>
+         <div data-role="content">
+            <p>
+               Use this form to customize the app settings.
+            </p>
+            <form id="settings-form" name="settings-form" action="settings.html">
+               <div data-role="fieldcontain">
+                  <label for="sdcard-loc">SD Card Location:</label>
+                  <input type="text" id="sdcard-loc" name="sdcard-loc" value="storage/emulated/0/Download/eschool2go/" /> Doesn't begin with a slash. Ends with a slash. Example: storage/extSdCard/eschool2go/ or storage/emulated/0/Download/eschool2go/. Make sure the app has permissions to access "Storage".
+				  <a href="#" id="btnFolderBrowser" data-role="button" data-inline="true">Browse</a>
+               </div>
+               <input type="submit" value="Save" />
+               <a href="#" id="clearCacheBtn" data-role="button" data-inline="true">Clear Cache</a>
+               <a href="#" id="copyDBtoSDcard" data-role="button" data-inline="true">Copy DB to SD Card</a>
+               <a href="#" id="copyDBfromSDcard" data-role="button" data-inline="true">Copy DB from SD Card</a>
+               <div id="results"></div>
+            </form>
+         </div>
+		  <footer data-role="footer" data-position="fixed">
+			 <div data-role="navbar">
+				<ul>
+				<!--class="ui-btn-active"-->
+				  <li><a href="explorer.html" data-icon="home">Explore</a></li>
+				  <li><a href="settings.html" data-icon="gear" class="ui-btn-active ui-state-persist">Settings</a></li>
+				</ul>
+			  </div>
+		 </footer><!-- /footer -->
+      </div>
+   </body>
+</html>
