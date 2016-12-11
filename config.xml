@@ -116,4 +116,5 @@
     <engine name="android" spec="~5.1.1" />
     <plugin name="com.phonegap.plugins.fileopener" spec="https://github.com/michalzubkowicz/FileOpener.git" />
     <plugin name="com.ourcodeworld.plugins.Filebrowser" spec="https://github.com/ourcodeworld/cordova-ourcodeworld-filebrowser.git" />
+    <plugin name="cordova-sqlite-storage" spec="~1.4.7" />
 </widget>
