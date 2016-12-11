@@ -51,12 +51,12 @@ var AppFile = {
 		
   },
   mdFileParse : function(fileEntry) {
-    // console.log("dbase in mdFileParse"+ JSON.stringify(fileEntry));
+     console.log("jenny in mdFileParse"+ JSON.stringify(fileEntry));
     fileEntry.file(function(file) {
       var reader = new FileReader();
 
       reader.onloadend = function() {
-        // console.log("Successful file read mdFileParse: " + this.result);
+         console.log("jenny Successful file read mdFileParse: " + this.result);
         var mdFileData = this.result;
         if (mdFileData) {
           var YAMLfileData = mdFileData.substring(4, mdFileData
@@ -76,8 +76,7 @@ var AppFile = {
           // filePathWithoutExt);
           // console.log("fileExt mdFileParse: " + fileExt);
           // console.log("description mdFileParse: " + description);
-          app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt,
-              doc.title, description);
+          app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt, doc.type, doc.offline_file, doc.title, description);
         }
       };
 

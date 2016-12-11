@@ -1,82 +1,17 @@
 var sdcardLoc = '';
+var annotationsObject = '4561';
 var count = 0;
 var Application = {
   initWebViewerPage : function(url) {
-    //console.log("url " + url);
+    console.log("initWebViewerPage: url " + url);
     //$('#web-view-frame').attr("src", url);
   },
   initPDFViewerPage : function(url) {
-    //console.log("url " + url);
-    // $('#web-view-frame').attr("src", url);
-    if (!PDFJS.PDFViewer || !PDFJS.getDocument) {
-      console.log('Please build the pdfjs-dist library using\n'
-          + '  `gulp dist`');
-    }
-    // The workerSrc property shall be specified.
-    PDFJS.workerSrc = 'js/pdfjs/build/pdf.worker.js';
-
-    // var DEFAULT_URL = '../../web/compressed.tracemonkey-pldi-09.pdf';
-    //var DEFAULT_URL = 'http://172.27.81.10:3000/js/chapter_1.pdf';
-    var DEFAULT_URL = url;
-    console.log("pdfbase: " + DEFAULT_URL);
-    var SEARCH_FOR = ''; // try 'Mozilla';
-
-    var container = document.getElementById('viewerContainer');
-
-    // (Optionally) enable hyperlinks within PDF files.
-    var pdfLinkService = new PDFJS.PDFLinkService();
-
-    var pdfViewer = new PDFJS.PDFViewer({
-      container : container,
-      linkService : pdfLinkService,
-    });
-    pdfLinkService.setViewer(pdfViewer);
-
-    // (Optionally) enable find controller.
-    var pdfFindController = new PDFJS.PDFFindController({
-      pdfViewer : pdfViewer
-    });
-    pdfViewer.setFindController(pdfFindController);
-
-    container.addEventListener('pagesinit', function() {
-      // We can use pdfViewer now, e.g. let's change default scale.
-      pdfViewer.currentScaleValue = 'page-width';
-
-      if (SEARCH_FOR) { // We can try search for things
-        pdfFindController.executeCommand('find', {
-          query : SEARCH_FOR
-        });
-      }
-    });
-
-    // Loading document.
-    PDFJS
-        .getDocument(DEFAULT_URL)
-        .then(
-            function(pdfDocument) {
-              // Document loaded, specifying document for the viewer and
-              // the (optional) linkService.
-              pdfViewer.setDocument(pdfDocument);
-
-              pdfLinkService.setDocument(pdfDocument, null);
-
-              /*setTimeout(
-                  function() {
-                    //console.log("setTimeout on load");
-                    $('div.textLayer div')
-                        .each(
-                            function() {
-                              var contentfull = $(this).html();
-                              // console.log(contentfull);
-                              var newcontent = contentfull
-                                  .replace(/the/g,
-                                      '<a style="background:red; margin-left: -2px;" href="#">the </a>');
-                              //console.log(newcontent);
-                              $(this).html(newcontent);
-                            });
-
-                  }, 4000);*/
-            });
+    console.log("initPDFViewerPage: url " + url);
+    annotationsObject = url;
+ // <iframe id="web-view-frame" src='js/pdfjs-web/web/viewer.html?file=file://mnt/sdcard/Download/PGRDeclarationsPage.pdf' height='627px' width='100%' scrolling='auto' frameBorder='0' ></iframe>
+    $('#pdf-view-frame').attr("src", "js/pdfjs/examples/mobile-viewer/viewer.html?file="+url);
+    //$('#pdf-view-frame').attr("src", "js/pdfjs/web/viewer.html?file="+url);
   },
  
   initApplication : function() {
@@ -104,7 +39,7 @@ var Application = {
     }).on('pageinit', '#'+EXPLORER_VIEWER_PAGE_ID, function() {
       var categParent = this.getAttribute('data-url').replace(/(.*?)parent=/g, '');
       if (categParent.indexOf(EXPLORER_PAGE_NAME) !== -1) {
-        categParent = VIDEO_FOLDER_NAME;
+        categParent = '';
       }
       Application.initListExplorerPage(categParent);
     });
@@ -276,18 +211,22 @@ var Application = {
                    * title from the YAML file
                    */
                   // Files that don't start with . for deleted files
-                  if (entries[i].name.endsWith(".md")
+                  if (entries[i].name.endsWith(".yaml")
                       && (entries[i].name.substring(0, 1) != '.')) {
                     // console.log("dbase mdFileFullPath first char: **" +
                     // entries[i].name.substring(0,1) + "^^");
                     var mdFileFullPath = entries[i].fullPath;
                     // mdFileFullPath:
                     // /storage/extSdCard/eschool2go/_videos/Khan
-                    // Academy/math/algebra/algebra-functions/analyzing-functions-alg1/_01wqwsb66E.md58
-                    // console.log("dbase mdFileFullPath: " + mdFileFullPath);
+                    // Academy/math/algebra/algebra-functions/analyzing-functions-alg1/_01wqwsb66E.md
+                     //console.log("addFileEntry: mdFileFullPath: " + mdFileFullPath);
+
+                    // TODO: For some reason, simulator needs 'mnt/sdcard'
+                    //console.log("addFileEntry: 'file:///' + 'mnt/sdcard' + mdFileFullPath " + 'file:///' + 'mnt/sdcard' + mdFileFullPath);
+
                     // Check for the file.
                     window.resolveLocalFileSystemURL(
-                        'file://' + mdFileFullPath, AppFile.mdFileParse,
+                        'file:///' + mdFileFullPath, AppFile.mdFileParse,
                         Application.fail);
                   } else if (entries[i].name.endsWith(".mp4")) {
                     var filePathWithoutExt = entries[i].fullPath.substring(1,
@@ -370,104 +309,252 @@ var Application = {
     }
   },
   initListExplorerPage : function(categParent, listview_id) {
-    listview_id = typeof listview_id !== 'undefined' ? listview_id : EXPLORER_LISTVIEW_ID;
-    var hyphened_categParent = categParent.replace(/\//g, '-');
-    hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
-
-    $('#'+listview_id).attr("id", listview_id+"-" + hyphened_categParent);
-    var $contentsList = $('#'+listview_id+'-' + hyphened_categParent);
-    var htmlItems = '<li><a href="webviewer.html">1my webviewer.html PDF 3</a></li>';
-    $contentsList.empty().append(htmlItems).listview('refresh');
-    //$contentsList.listview('refresh');
-
-    try {
-      app.db = window.sqlitePlugin.openDatabase({
-        name : DATABASE_NAME,
-        location : 'default'
-      });
+    app.db = window.sqlitePlugin.openDatabase({
+      name : DATABASE_NAME,
+      location : 'default'
+    });
+    //console.log("initListExplorerPage: categParent"+categParent)
+    if(categParent == ''){
       app.db
-        .transaction(function(transaction) {
-          transaction
-              .executeSql(
-                  "SELECT cache_video_files.*, cache_yaml_files.display_name, cache_image_files.name AS image_file_name FROM cache_video_files LEFT JOIN cache_yaml_files ON cache_video_files.path = cache_yaml_files.path LEFT JOIN cache_image_files ON cache_video_files.path = cache_image_files.path WHERE cache_video_files.path LIKE '"
-                      + categParent + "/%'",
-                  [],
-                  function(tx, results) {
-                    var len = results.rows.length, i;
-                    var listItemsObj = {}
-                    for (i = 0; i < len; i++) {
-                      var filePathWithOutExt = results.rows.item(i).path;
-                      var filePathWithExt = filePathWithOutExt + "."
-                          + results.rows.item(i).extension;
-                      var filePathArray = filePathWithExt.split("/");
-                      var categParentNumOfSlashes = (categParent.split("/").length - 1);
-                      var filePathNumOfSlashes = (filePathArray.length - 1);
-                      var listItemName = filePathArray[1 + categParentNumOfSlashes];
-                      if (filePathNumOfSlashes == (categParentNumOfSlashes + 1)) {
-                        listItemsObj[listItemName] = {
-                          "isFile" : true,
-                          "ext" : results.rows.item(i).extension,
-                          "name" : results.rows.item(i).display_name,
-                          "image" : results.rows.item(i).image_file_name
-                        };
-                      } else {
-                        listItemsObj[listItemName] = {
-                          "isFile" : false,
-                          "name" : listItemName
-                        };
+      .transaction(function(transaction) {
+        transaction
+                .executeSql(
+                    "SELECT cache_yaml_files.* FROM cache_yaml_files",
+                    [],
+                function(tx, results) {
+                      var listItemsObj = {};
+                      var len = results.rows.length, i;
+                      for (i = 0; i < len; i++) {
+                        var filePathWithOutExt = results.rows.item(i).unified_path;
+                        var path_array = filePathWithOutExt.split("/");
+                        var root_folder = path_array[0];
+                        listItemsObj[root_folder] = {
+                            "isFile" : false,
+                            "name" : root_folder
+                          };
                       }
-                    }
-                    $
-                        .each(
-                            listItemsObj,
-                            function(i, el) {
-                              if (el.isFile == true) {
-                                var file_display_name = i;
-                                if (el.name) {
-                                  file_display_name = el.name;
-                                }
-                                var image_html = '';
-                                if (el.image) {
-                                  image_html = '<img width="230px" src="file:///'
-                                      + sdcardLoc
+                      listview_id = typeof listview_id !== 'undefined' ? listview_id : EXPLORER_LISTVIEW_ID;
+                      var hyphened_categParent = 'root';
+                      $('#'+listview_id).attr("id", listview_id+"-" + hyphened_categParent);
+                      //console.log("initListExplorerPage: listview_id "+listview_id);
+                      var $contentsList = $('#'+listview_id+'-' + hyphened_categParent);
+                      //console.log($contentsList);
+                      $
+                      .each(
+                          listItemsObj,
+                          function(i, el) {
+                            var htmlItems = '<li><a href="explorer.html?parent='
+                              + i
+                              + '">'
+                              + el.name
+                              + '</a></li>';
+                            //console.log("initListExplorerPage: " + htmlItems);
+                            $contentsList.append(htmlItems);
+                          }
+                        );
+                      $contentsList.listview('refresh');
+                      $.mobile.loading('hide');
+                }, null);
+      });
+    }else{
+      listview_id = typeof listview_id !== 'undefined' ? listview_id : EXPLORER_LISTVIEW_ID;
+      var hyphened_categParent = categParent.replace(/\//g, '-');
+      hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
+      console.log('initListExplorerPage: listview_id+"-" + hyphened_categParent ' + listview_id+"-" + hyphened_categParent);
+      $('#'+listview_id).attr("id", listview_id+"-" + hyphened_categParent);
+      var $contentsList = $('#'+listview_id+'-' + hyphened_categParent);
+
+      // _media_assets/en.m.wikipedia.org/wiki/Animal\ product.html
+      //var htmlItems = '<li><a href="webviewer.html">1my webviewer.html PDF 3</a></li>';
+      /*var htmlItems = '<li><a href="webviewer.html?link=file:///storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_media_assets/en.m.wikipedia.org/wiki/Animal%20product.html">web1 %20</a></li>';
+      $contentsList.append(htmlItems).listview('refresh');
+
+      htmlItems = '<li><a href="webviewer.html?link=file:///storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_media_assets/en.m.wikipedia.org/wiki/Animal product.html">web2</a></li>';
+      $contentsList.append(htmlItems).listview('refresh');
+
+      $contentsList.listview('refresh');*/
+
+      try {
+        app.db
+          .transaction(function(transaction) {
+            transaction
+                /*.executeSql(
+                    "SELECT cache_video_files.*, cache_yaml_files.display_name, cache_image_files.name AS image_file_name FROM cache_video_files LEFT JOIN cache_yaml_files ON cache_video_files.path = cache_yaml_files.path LEFT JOIN cache_image_files ON cache_video_files.path = cache_image_files.path WHERE cache_video_files.path LIKE '"
+                        + categParent + "/%'",
+                    [],*/
+                    .executeSql(
+                        "SELECT cache_yaml_files.* FROM cache_yaml_files WHERE cache_yaml_files.unified_path LIKE '"
+                            + categParent + "%'",
+                        [],
+                    function(tx, results) {
+                      console.log(JSON.stringify(results));
+                      var len = results.rows.length, i;
+                      console.log("initListExplorerPage: len = results.rows.length"+len)
+                      var listItemsObj = {}
+                      for (i = 0; i < len; i++) {
+                        var filePathWithOutExt = results.rows.item(i).unified_path;
+                        var filePathWithExt = filePathWithOutExt + "."
+                            + results.rows.item(i).extension;
+                        var filePathArray = filePathWithExt.split("/");
+                        var categParentNumOfSlashes = (categParent.split("/").length - 1);
+                        var filePathNumOfSlashes = (filePathArray.length - 1);
+                        var listItemName = filePathArray[1 + categParentNumOfSlashes];
+                        if (filePathNumOfSlashes == (categParentNumOfSlashes + 1)) {
+                          listItemsObj[listItemName] = {
+                            "isFile" : true,
+                            "ext" : results.rows.item(i).extension,
+                            "type" : results.rows.item(i).type,
+                            "offline_file" : results.rows.item(i).offline_file,
+                            "name" : results.rows.item(i).display_name,
+                            "image" : results.rows.item(i).image_file_name
+                          };
+                        } else {
+                          listItemsObj[listItemName] = {
+                            "isFile" : false,
+                            "name" : listItemName
+                          };
+                        }
+                      }
+                      if(categParent){
+                        categParent = categParent + '/';
+                      }
+                      console.log("initListExplorerPage: listItemsObj " + JSON.stringify(listItemsObj));
+                      // If length of listItemsObj is 1 and not file
+                      console.log("initListExplorerPage: listItemsObj length" + Object.keys(listItemsObj).length);
+                      console.log("initListExplorerPage: Object.keys(listItemsObj) " + JSON.stringify(Object.keys(listItemsObj)[0]));
+                      if(Object.keys(listItemsObj).length == 1 && !Object.keys(listItemsObj)[0].endsWith(".yaml")){
+                        console.log("initListExplorerPage: Object.values(listItemsObj) " + JSON.stringify(Object.keys(listItemsObj)[0]));
+                        var folderMultiPathArray = [];
+                        var minimum_length = 100;
+                        for (i = 0; i < len; i++) {
+                          // English/Textbooks/India/Telangana/SSC/Biology/2. Respiration -
+                          // English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition -
+                          // English/Textbooks/India/Telangana/SSC/Physics/1. Heat -
+                          // categParent: English/Textbooks
+                          var filePathWithOutExt = results.rows.item(i).unified_path;
+                          // Remove categParent
+                          var folderPath = filePathWithOutExt.substring(categParent.length);
+                          console.log("initListExplorerPage: folderPath "+folderPath);
+                          // Remove file name
+                          var folderPathArray = folderPath.split("/");
+                          folderPathArray.pop()
+                          folderMultiPathArray.push(folderPathArray);
+                          if(folderPathArray.length < minimum_length){
+                            minimum_length = folderPathArray.length;
+                          }
+                          console.log("initListExplorerPage: filePathWithOutExt unified_path "+filePathWithOutExt);
+                        }
+                        console.log("initListExplorerPage: folderMultiPathArray " + JSON.stringify(folderMultiPathArray));
+                        var matchingComponentArray = [];
+                        console.log("initListExplorerPage: minimum_length "+minimum_length);
+                        for (i = 0; i < minimum_length; i++) {
+                          var matching_component = folderMultiPathArray[0][i];
+                          var is_matched = true;
+                          console.log("initListExplorerPage: matching_component "+matching_component);
+                          for (var j = 1; j < folderMultiPathArray.length; j++) {
+                            console.log("initListExplorerPage: j i folderMultiPathArray[j][i] "+j+i+folderMultiPathArray[j][i]);
+                            if(folderMultiPathArray[j][i] != matching_component){
+                              is_matched = false;
+                            }
+                          }
+                          if(is_matched == true){
+                            matchingComponentArray.push(matching_component);
+                          }
+                        }
+                        console.log("initListExplorerPage: matchingComponentArray " + JSON.stringify(matchingComponentArray));
+                        var listItemsObj = {}
+                        listItemsObj[matchingComponentArray.join('/')] = {
+                            "isFile" : false,
+                            "name" : matchingComponentArray.join(' -> ')
+                          };
+                      }
+                      $
+                          .each(
+                              listItemsObj,
+                              function(i, el) {
+                                if (el.isFile == true) {
+                                  var file_display_name = i;
+                                  if (el.name) {
+                                    file_display_name = el.name;
+                                  }
+                                  var image_html = '';
+                                  if (el.image) {
+                                    image_html = '<img width="230px" src="file:///'
+                                        + sdcardLoc
+                                        + categParent
+                                        + el.image + '" />';
+                                  }
+                                  if (el.type && (el.type == "video")) {
+                                    console.log("initListExplorerPage: el " + JSON.stringify(el));
+                                    console.log("initListExplorerPage: el.type 1" + el.type);
+                                    console.log("initListExplorerPage: el.offline_file " + el.offline_file);
+                                    console.log("initListExplorerPage: el.offline_file.trim()" + el.offline_file.trim());
+                                    // check for video file webm or mp4 or mkv
+                                    // _videos folder
+                                    // replace space with %20 http://android.stackexchange.com/questions/4775/how-can-i-open-an-html-file-i-have-copied-from-pc-to-sd-card-of-phone
+                                    // %20 or whole string in quotes "/mnt/sdcard/Documents/To Read.html"
+                                    var opener_file_url = sdcardLoc + '_videos/' + categParent + el.offline_file.trim();
+                                    opener_file_url = encodeURIComponent(opener_file_url);
+                                    //opener_file_url = opener_file_url.replace(/\s+/g, '%20');
+                                    var htmlItems = '<li>'
+                                      + image_html
+                                      + '<span onclick="window.plugins.fileOpener.open(\'file:///'
+                                      + opener_file_url
+                                      + '\')">' + file_display_name
+                                      + '</span></li>';
+                                      console.log("initListExplorerPage: " + htmlItems);
+                                  }else if (el.type && (el.type == "article")) {
+                                    console.log("rahul: el " + JSON.stringify(el));
+                                    console.log("rahul: el.type 1" + el.type);
+                                    console.log("rahul: el.offline_file " + el.offline_file);
+                                    console.log("rahul: el.offline_file.trim()" + el.offline_file.trim());
+                                    // check for video file webm or mp4 or mkv
+                                    // _videos folder
+                                    // replace space with %20 http://android.stackexchange.com/questions/4775/how-can-i-open-an-html-file-i-have-copied-from-pc-to-sd-card-of-phone
+                                    // %20 or whole string in quotes "/mnt/sdcard/Documents/To Read.html"
+                                    var opener_file_url = sdcardLoc + '_articles/' + categParent + el.offline_file.trim();
+                                    //opener_file_url = opener_file_url.replace(/\s+/g, '%20');
+                                    var htmlItems = '<li><a href="pdfviewer.html?link=file:///'+opener_file_url+'">'+file_display_name+'</a></li>';
+                                      console.log("rahul: " + htmlItems);
+                                  }else{
+                                    // unknown file type
+                                    var htmlItems = '<li>'
+                                        + image_html
+                                        + '<span onclick="window.plugins.fileOpener.open(\'file:///'
+                                        + sdcardLoc + categParent + i
+                                        + '\')">' + file_display_name
+                                        + '</span></li>';
+                                  }
+                                } else {
+                                  var htmlItems = '<li><a href="explorer.html?parent='
                                       + categParent
-                                      + '/'
-                                      + el.image + '" />';
+                                      + i
+                                      + '">'
+                                      + el.name
+                                      + '</a></li>';
                                 }
-                                var htmlItems = '<li>'
-                                    + image_html
-                                    + '<span onclick="window.plugins.fileOpener.open(\'file:///'
-                                    + sdcardLoc + categParent + '/' + i
-                                    + '\')">' + file_display_name
-                                    + '</span></li>';
-                              } else {
-                                var htmlItems = '<li><a href="explorer.html?parent='
-                                    + categParent
-                                    + "/"
-                                    + i
-                                    + '">'
-                                    + el.name
-                                    + '</a></li>';
-                              }
-                              $contentsList.append(htmlItems);
-                            });
-                   $contentsList.listview('refresh');
-           $.mobile.loading('hide');
-                  }, null);
-        });
-    }
-    catch(err) {
-      console.log(err);
-      if(navigator.notification){
-        navigator.notification.alert('Error: ' + err);
+                                console.log("initListExplorerPage: " + htmlItems);
+                                $contentsList.append(htmlItems);
+                              });
+                     $contentsList.listview('refresh');
+             $.mobile.loading('hide');
+                    }, null);
+          });
       }
-      return false;
+      catch(err) {
+        console.log(err);
+        if(navigator.notification){
+          navigator.notification.alert('Error: ' + err);
+        }
+        return false;
+      }
     }
   },
   initListIndexPage : function(categParent) {
     if (!categParent || (categParent.indexOf(HOME_PAGE_NAME) !== -1)) {
       categParent = VIDEO_FOLDER_NAME;
     }
+    categParent = '';
     Application.initListExplorerPage(categParent, 'index-contents-list');
   },  
 };

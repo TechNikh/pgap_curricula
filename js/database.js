@@ -16,13 +16,16 @@ app.insertImageRecord = function(name, path, extension) {
   });
 }
 // app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt, doc.title);
-app.insertYAMLrecord = function(name, path, extension, displayName, description) {
+app.insertYAMLrecord = function(name, path, extension, type, offline_file, displayName, description) {
+  var path_array = path.split("/");
+  path_array.shift();
+  var unified_path = path_array.join('/');
   app.db
       .transaction(function(tx) {
         tx
             .executeSql(
-                "INSERT INTO cache_yaml_files(name, path, extension, display_name, description) VALUES (?,?,?,?,?)",
-                [ name, path, extension, displayName, description ],
+                "INSERT INTO cache_yaml_files(name, path, unified_path, extension, type, offline_file, display_name, description) VALUES (?,?,?,?,?,?,?,?)",
+                [ name, path, unified_path, extension, type, offline_file, displayName, description ],
                 app.onSuccess, app.onError);
       });
 }
@@ -61,11 +64,14 @@ app.prepareCacheTables = function() {
         app.onError);
   });
   // Create table
+  /*
+   * type: video/article
+   */
   app.db
       .transaction(function(tx) {
         tx
             .executeSql(
-                'CREATE TABLE IF NOT EXISTS cache_yaml_files (id integer primary key, name text, path text, extension text, display_name text, description text)',
+                'CREATE TABLE IF NOT EXISTS cache_yaml_files (id integer primary key, name text, path text, unified_path text, extension text, type text, offline_file text, display_name text, description text)',
                 app.onSuccess, app.onError);
       });
 }
