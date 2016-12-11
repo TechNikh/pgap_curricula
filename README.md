@@ -12,10 +12,8 @@ This application is written using HTML, CSS and JavaScript with the support of s
 6. Access the content by clicking the "Browse" button from Home screen.
 
 ## Building APK from Source ##
-1. cordova create eschooltogo
-2. cd eschooltogo
-3. rm -r www/
-4. git clone https://github.com/TechNikh/eschool2go-phonegap.git www
+1. git clone https://github.com/TechNikh/eschool2go-phonegap.git
+2. cd eschool2go-phonegap
 5. cordova platform add android
 6. cordova run android
 7. For more information on Getting started with a Cordova project, Go to https://cordova.apache.org/#getstarted
