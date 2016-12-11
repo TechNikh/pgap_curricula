@@ -16,7 +16,8 @@ app.insertImageRecord = function(name, path, extension) {
   });
 }
 // app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt, doc.title);
-app.insertYAMLrecord = function(name, path, extension, type, offline_file, displayName, description) {
+app.insertYAMLrecord = function(name, path, extension, type, offline_file,
+    displayName, description) {
   var path_array = path.split("/");
   path_array.shift();
   var unified_path = path_array.join('/');
@@ -25,8 +26,8 @@ app.insertYAMLrecord = function(name, path, extension, type, offline_file, displ
         tx
             .executeSql(
                 "INSERT INTO cache_yaml_files(name, path, unified_path, extension, type, offline_file, display_name, description) VALUES (?,?,?,?,?,?,?,?)",
-                [ name, path, unified_path, extension, type, offline_file, displayName, description ],
-                app.onSuccess, app.onError);
+                [ name, path, unified_path, extension, type, offline_file,
+                    displayName, description ], app.onSuccess, app.onError);
       });
 }
 app.prepareCacheTables = function() {
