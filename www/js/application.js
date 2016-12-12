@@ -12,9 +12,10 @@ var Application = {
     // <iframe id="web-view-frame"
     // src='js/pdfjs-web/web/viewer.html?file=file://mnt/sdcard/Download/PGRDeclarationsPage.pdf'
     // height='627px' width='100%' scrolling='auto' frameBorder='0' ></iframe>
-    $('#pdf-view-frame').attr("src",
-        "js/pdfjs/examples/mobile-viewer/viewer.html?file=" + url);
-    // $('#pdf-view-frame').attr("src", "js/pdfjs/web/viewer.html?file="+url);
+    // TODO: Remove examples/mobile-viewer/viewer.html will not work as it's canvas based & no HTML for annotations text in DOM
+    //$('#pdf-view-frame').attr("src",
+    //    "js/pdfjs/examples/mobile-viewer/viewer.html?file=" + url);
+    $('#pdf-view-frame').attr("src", "js/pdfjs/web/viewer.html?file="+url);
   },
 
   initApplication : function() {

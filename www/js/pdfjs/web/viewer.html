@@ -28,7 +28,6 @@ See https://github.com/adobe-type-tools/cmap-resources
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>PDF.js viewer</title>
 
-
     <link rel="stylesheet" href="viewer.css">
 
     <script src="compatibility.js"></script>
@@ -40,36 +39,11 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     <script src="debugger.js"></script>
     <script src="viewer.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <!--<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>-->
 
+    <script src="../../jquery-1.11.1.min.js"></script>
     <script src="../../settings.js"></script>
-<script>
-setTimeout(
-    function() {
-      console.log("rahul: setTimeout on load");
-      $( "#non-existing" ).html( "Next Step..." );
-      console.log("rahul: after $( #non-existing )");
-      $('div.textLayer div')
-          .each(
-              function() {
-                var contentfull = $(this).html();
-                 //console.log("rahul: " + contentfull);
-                var newcontent = contentfull
-                    .replace(/the/g,
-                        '<a style="background:red; margin-left: -2px;" href="#num81" target="_top">the </a>');
-                console.log("rahul: " + newcontent);
-                $(this).html(newcontent);
-              });
+    <script src="../../pdf-annotations-viewer.js"></script>
 
-      $( "#btn-panel-options", window.parent.document )[0].click();
-      console.log("rahul: before window.parent.document scrollIntoView");
-      $( "#num81", window.parent.document )[0].scrollIntoView(); 
-      
-      console.log("rahul: before annotations db 1"+parent.annotationsObject);
-
-    }, 7000);
-</script>
   </head>
 
   <body tabindex="1" class="loadingInProgress">
