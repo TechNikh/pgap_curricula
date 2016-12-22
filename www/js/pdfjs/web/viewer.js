@@ -4468,6 +4468,7 @@ var PDFPageView = (function PDFPageViewClosure() {
 
   PDFPageView.prototype = {
     setPdfPage: function PDFPageView_setPdfPage(pdfPage) {
+      console.log("ananya: pdf lib viewer.js PDFPageView_setPdfPage");
       this.pdfPage = pdfPage;
       this.pdfPageRotate = pdfPage.rotate;
       var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
@@ -4478,6 +4479,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     destroy: function PDFPageView_destroy() {
+      console.log("ananya: pdf lib viewer.js PDFPageView_destroy");
       this.zoomLayer = null;
       this.reset();
       if (this.pdfPage) {
@@ -4486,6 +4488,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     reset: function PDFPageView_reset(keepZoomLayer, keepAnnotations) {
+      console.log("ananya: pdf lib viewer.js PDFPageView_reset");
       if (this.renderTask) {
         this.renderTask.cancel();
       }
@@ -4531,6 +4534,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     update: function PDFPageView_update(scale, rotation) {
+      console.log("ananya: pdf lib viewer.js PDFPageView_update");
       this.scale = scale || this.scale;
 
       if (typeof rotation !== 'undefined') {
@@ -4583,12 +4587,14 @@ var PDFPageView = (function PDFPageViewClosure() {
      * Called when moved in the parent's container.
      */
     updatePosition: function PDFPageView_updatePosition() {
+      //console.log("ananya: pdf lib viewer.js PDFPageView_updatePosition");
       if (this.textLayer) {
         this.textLayer.render(TEXT_LAYER_RENDER_DELAY);
       }
     },
 
     cssTransform: function PDFPageView_transform(canvas, redrawAnnotations) {
+      console.log("ananya: pdf lib viewer.js PDFPageView_transform");
       var CustomStyle = pdfjsLib.CustomStyle;
 
       // Scale canvas, canvas wrapper, and page container.
@@ -4672,6 +4678,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     draw: function PDFPageView_draw() {
+      console.log("ananya: pdf lib viewer.js PDFPageView_draw");
       if (this.renderingState !== RenderingStates.INITIAL) {
         console.error('Must be in new state before drawing');
       }
@@ -4888,6 +4895,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     beforePrint: function PDFPageView_beforePrint(printContainer) {
+      console.log("ananya: pdf lib viewer.js PDFPageView_beforePrint");
       var CustomStyle = pdfjsLib.CustomStyle;
       var pdfPage = this.pdfPage;
 

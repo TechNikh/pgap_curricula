@@ -1,24 +1,114 @@
 var sdcardLoc = '';
-var annotationsObject = '4561';
+var annotationsObject = {};
 var count = 0;
 var Application = {
   initWebViewerPage : function(url) {
     console.log("initWebViewerPage: url " + url);
     // $('#web-view-frame').attr("src", url);
   },
-  initPDFViewerPage : function(url) {
-    console.log("initPDFViewerPage: url " + url);
-    annotationsObject = url;
+  applyPDFviewerAnnotations : function(iframeSelector) {
+    console.log("adarsh: in applyPDFviewerAnnotations");
+    $('div.textLayer div', $(iframeSelector).get(0).contentWindow.document)
+    .each(
+        function() {
+          var contentfull = $(this).html();
+          console.log("adarsh: " + contentfull);
+          $.each(annotationsObject, function(i, el) {
+            console.log("bannu : annotationsObject " + i);
+            var re = new RegExp(i,"g");
+            contentfull = contentfull
+            .replace(
+                re,
+                '<span onclick="pdfAnnotationsViewerApp.onClickOfAnnotationQuote(\''+el.id+'\', \''+el.source_uuid+'\')" style="background:yellow; margin-left: -2px;">'+i+' </span>');
+            console.log("bannu : span onclick " + '<span onclick="pdfAnnotationsViewerApp.onClickOfAnnotationQuote(\''+el.id+'\')" style="');
+          });
+          console.log("bannu: " + contentfull);
+          $(this).html(contentfull);
+        });
+  },
+  initPDFViewerPage : function(uuid, url) {
+    console.log("bannu initPDFViewerPage: url " + url);
+    console.log("bannu initPDFViewerPage: uuid " + uuid);
+
+    $('#mypanel').attr("id", 'pdf-panel-'+uuid);
+    $('#btn-panel-options').attr("id", 'btn-panel-'+uuid);
+    $('#btn-panel-'+uuid).attr("href", '#pdf-panel-'+uuid);
+    
+    app.db = window.sqlitePlugin.openDatabase({
+      name : DATABASE_NAME,
+      location : 'default'
+    });
+    app.insertAnalyticsEvent('PDF Viewer', 'Page View', url, '', '');
+    app.db.transaction(function(transaction) {
+      transaction.executeSql(
+          "SELECT cache_annotations.*, cache_yaml_files.path, cache_yaml_files.offline_file FROM cache_annotations LEFT JOIN cache_yaml_files ON cache_annotations.annot_uuid = cache_yaml_files.uuid  WHERE cache_annotations.source='"+uuid+"'", [], function(tx,
+              results) {
+            var len = results.rows.length, i;
+            console.log("bannu annotations: len " + len);
+            var pannelAnnotationHTML = '<div id="panel-annot-html">';
+            for (i = 0; i < len; i++) {
+              var annot_quote = results.rows.item(i).annot_quote;
+              var annot_comment = results.rows.item(i).annot_comment;
+              var annot_id = results.rows.item(i).annot_uuid;
+              //console.log("blackie annotations: annot_id " + annot_id);
+              //console.log("blackie: results.rows.item(i)"+ JSON.stringify(results.rows.item(i)));
+
+              annotationsObject[annot_quote] = {
+                  "id" : annot_id,
+                  "source_uuid" : uuid,
+                  "text" : results.rows.item(i).annot_text,
+                  "comment" : annot_comment
+                };
+              //results.rows.item(i).path = _articles/English/Wikipedia/Uncategorized/Outline of life forms
+              var yaml_file_path = results.rows.item(i).path;
+              yaml_file_path = yaml_file_path.substring(0, yaml_file_path.lastIndexOf("/")+1);
+              var opener_file_url = "file:///" + sdcardLoc + yaml_file_path + results.rows.item(i).offline_file;
+              console.log("blackie annotations: opener_file_url " + opener_file_url);
+              //var opener_file_url = 'storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf';
+              pannelAnnotationHTML += '<div class="annot bordered-box" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+' <a href="pdfviewer.html?uuid='
+              + results.rows.item(i).id
+              + '&link='
+              + opener_file_url
+              + '">'
+              + 'More...' + '</a></div>';
+              //pannelAnnotationHTML += '<div class="annot" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+' <a href="pdfviewer.html">More...</a></div>';
+            }
+            if(len > 0){
+              pannelAnnotationHTML += '</div>';
+              console.log("bannu annotations: pannelAnnotationHTML " + pannelAnnotationHTML);
+              $('#pdf-panel-'+uuid+' .ui-panel-inner').append(pannelAnnotationHTML);
+              //$('#panel-annot-html').height('3000px');
+              //$('#mypanel').height('3200px');
+              $('#pdf-panel-'+uuid).trigger( "updatelayout" );
+              //$('#mypanel').append($('#panel-annot-html').height());
+              //$("#btn-panel-options")[0].click();
+            }
+          }, null);
+    });
+    // file:///storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
+    //_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
+    //annotationsObject = url;
     // <iframe id="web-view-frame"
     // src='js/pdfjs-web/web/viewer.html?file=file://mnt/sdcard/Download/PGRDeclarationsPage.pdf'
     // height='627px' width='100%' scrolling='auto' frameBorder='0' ></iframe>
     // TODO: Remove examples/mobile-viewer/viewer.html will not work as it's canvas based & no HTML for annotations text in DOM
     //$('#pdf-view-frame').attr("src",
     //    "js/pdfjs/examples/mobile-viewer/viewer.html?file=" + url);
-    $('#pdf-view-frame').attr("src", "js/pdfjs/web/viewer.html?file="+url);
+    $('#pdf-view-frame').attr("id", 'pdf-frame-'+uuid);
+    $('#pdf-frame-'+uuid).attr("src", "js/pdfjs/web/viewer.html?file="+url);
+    //$('#pdf-view-frame').attr("src", "http://wikipediainschools.org/");
+    $("#showAllAnnotations").click(
+        function() {
+          console.log("adarsh: in showAllAnnotations");
+          Application.applyPDFviewerAnnotations('#pdf-frame-'+uuid);
+        });
   },
 
   initApplication : function() {
+    // http://stackoverflow.com/questions/38720493/how-to-check-internet-connection-on-a-cordova-app
+    document.addEventListener("online", analyticsApp.onOnline, false);
+    document.addEventListener("offline", analyticsApp.onOffline, false);
+
     var settingsFromLocalStorage = window.localStorage.getItem("'"
         + SETTING_LOCAL_STORAGE_NAME + "'");
     if (settingsFromLocalStorage && (settingsFromLocalStorage != null)) {
@@ -29,7 +119,7 @@ var Application = {
     }
 
     if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) == undefined) {
-      // Application.callFirstTimeApplicationLaunch();
+      Application.callFirstTimeApplicationLaunch();
       window.localStorage.setItem(INSTALLATION_CHECK_VALUE, true);
     }
 
@@ -39,8 +129,17 @@ var Application = {
       var url = this.getAttribute('data-url').replace(/(.*?)link=/g, '');
       Application.initWebViewerPage(url);
     }).on('pageinit', '#' + PDF_VIEWER_PAGE_ID, function() {
-      var url = this.getAttribute('data-url').replace(/(.*?)link=/g, '');
-      Application.initPDFViewerPage(url);
+      // /android_asset/www/pdfviewer.html?uuid=9401a2c8-6470-42f4-ac20-7582c0dc0581&link=file:///storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/
+      var dataUrl = this.getAttribute('data-url');
+      //console.log("bannu: dataUrl" + dataUrl);
+      //console.log("bannu: dataUrl index" + dataUrl.indexOf("?"));
+      //console.log("bannu: dataUrl.substring(dataUrl.indexof("?"))" + dataUrl.substring(dataUrl.indexOf("?")));
+      var params = Application.parseQueryString(dataUrl.substring(dataUrl.indexOf("?")+1));
+      //console.log("bannu: params"+ JSON.stringify(params));
+      var uuid = params.uuid;
+      var url = params.link;
+      console.log("bannu: uuid" + params.uuid);
+      Application.initPDFViewerPage(uuid, url);
     }).on(
         'pageinit',
         '#' + EXPLORER_VIEWER_PAGE_ID,
@@ -60,6 +159,18 @@ var Application = {
     $("#" + HOME_PAGE_REFRESH_BTN_ID).click(function() {
       Application.setInstallationValue();
     });
+  },
+  
+  parseQueryString : function(query) {
+    var parts = query.split('&');
+    var params = {};
+    for (var i = 0, ii = parts.length; i < ii; ++i) {
+      var param = parts[i].split('=');
+      var key = param[0].toLowerCase();
+      var value = param.length > 1 ? param[1] : null;
+      params[decodeURIComponent(key)] = decodeURIComponent(value);
+    }
+    return params;
   },
 
   fail : function(error) {
@@ -84,6 +195,15 @@ var Application = {
   },
 
   callFirstTimeApplicationLaunch : function() {
+    console.log( "adarsh: callFirstTimeApplicationLaunch: " );
+    app.db = window.sqlitePlugin.openDatabase({
+      name : DATABASE_NAME,
+      location : 'default'
+    });
+    console.log( "adarsh: before prepareCacheTables: " );
+    app.prepareCacheTables();
+    console.log( "adarsh: after prepareCacheTables: " );
+    /*
     // Single folder selector
     $.mobile.loading('show');
     window.OurCodeWorld.Filebrowser.folderPicker.single({
@@ -108,7 +228,7 @@ var Application = {
       error : function(err) {
         console.log(err);
       }
-    });
+    });*/
   },
 
   callClearCache : function() {
@@ -173,6 +293,11 @@ var Application = {
           window.resolveLocalFileSystemURL("file:///" + sdcardLoc
               + SDCARD_DATABASE_FOLDER_NAME + "/" + DATABASE_NAME,
               AppFile.copyDBfromSDcard, Application.fail);
+        });
+    $("#uploadAnalyticsToServer").click(
+        function() {
+          // console.log("droidbase: in uploadAnalyticsToServer");
+          analyticsApp.uploadToServer();
         });
     $("#clearCacheBtn").click(
         function() {
@@ -253,28 +378,6 @@ var Application = {
                     window
                         .resolveLocalFileSystemURL('file:///' + mdFileFullPath,
                             AppFile.mdFileParse, Application.fail);
-                  } else if (entries[i].name.endsWith(".mp4")) {
-                    var filePathWithoutExt = entries[i].fullPath.substring(1,
-                        entries[i].fullPath.lastIndexOf("."));
-                    // Don’t store SD card location in Database
-                    filePathWithoutExt = filePathWithoutExt
-                        .substring(filePathWithoutExt
-                            .lastIndexOf("/eschool2go/") + 12);
-                    var fileExt = entries[i].fullPath
-                        .substring(entries[i].fullPath.lastIndexOf(".") + 1);
-                    app.insertVideoRecord(entries[i].name, filePathWithoutExt,
-                        fileExt);
-                  } else if (entries[i].name.endsWith(".jpg")
-                      || entries[i].name.endsWith(".png")) {
-                    var filePathWithoutExt = entries[i].fullPath.substring(1,
-                        entries[i].fullPath.lastIndexOf("."));
-                    filePathWithoutExt = filePathWithoutExt
-                        .substring(filePathWithoutExt
-                            .lastIndexOf("/eschool2go/") + 12);
-                    var fileExt = entries[i].fullPath
-                        .substring(entries[i].fullPath.lastIndexOf(".") + 1);
-                    app.insertImageRecord(entries[i].name, filePathWithoutExt,
-                        fileExt);
                   }
                 }
               }
@@ -318,7 +421,7 @@ var Application = {
     });
   },
 
-  isDBExists : function() {
+  /*isDBExists : function() {
     try {
       app.db = window.sqlitePlugin.openDatabase({
         name : DATABASE_NAME,
@@ -335,12 +438,13 @@ var Application = {
     } catch (err) {
       return false;
     }
-  },
+  },*/
   initListExplorerPage : function(categParent, listview_id) {
     app.db = window.sqlitePlugin.openDatabase({
       name : DATABASE_NAME,
       location : 'default'
     });
+    app.insertAnalyticsEvent('Explorer', 'Page View', categParent, '', '');
     // console.log("initListExplorerPage: categParent"+categParent)
     if (categParent == '') {
       app.db.transaction(function(transaction) {
@@ -439,6 +543,7 @@ var Application = {
                           if (filePathNumOfSlashes == (categParentNumOfSlashes + 1)) {
                             listItemsObj[listItemName] = {
                               "isFile" : true,
+                              "uuid" : results.rows.item(i).uuid,
                               "ext" : results.rows.item(i).extension,
                               "type" : results.rows.item(i).type,
                               "offline_file" : results.rows.item(i).offline_file,
@@ -597,7 +702,9 @@ var Application = {
                                           + '_articles/' + categParent
                                           + el.offline_file.trim();
                                       //opener_file_url = opener_file_url.replace(/\s+/g, '%20');
-                                      var htmlItems = '<li><a href="pdfviewer.html?link=file:///'
+                                      var htmlItems = '<li><a href="pdfviewer.html?uuid='
+                                          + el.uuid
+                                          + '&link=file:///'
                                           + opener_file_url
                                           + '">'
                                           + file_display_name + '</a></li>';

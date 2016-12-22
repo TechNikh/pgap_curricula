@@ -77,8 +77,18 @@ var AppFile = {
           // filePathWithoutExt);
           // console.log("fileExt mdFileParse: " + fileExt);
           // console.log("description mdFileParse: " + description);
-          app.insertYAMLrecord(fileEntry.name, filePathWithoutExt, fileExt,
+          if(doc.type == "annotation"){
+            //console.log("bannu: yaml parsed mdFileParse: " + JSON.stringify(doc));
+            // Source: _articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
+            $.each(doc.annotations, function(i, annotation) {
+              console.log("bannu: " + doc.uuid + annotation.quote);
+              app.insertAnnotationsData(doc.uuid, annotation.uuid, annotation.quote, annotation.text,
+                  annotation.comment);
+            });
+          }else{
+            app.insertYAMLrecord(doc.uuid, fileEntry.name, filePathWithoutExt, fileExt,
               doc.type, doc.offline_file, doc.title, description);
+          }
         }
       };
 

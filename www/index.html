@@ -20,19 +20,27 @@
 	        -webkit-overflow-scrolling: touch;
 	    }
 		</style>
-		
+		<style>
+		  .bordered-box {
+		      padding: 5px;
+		      border: 2px solid red;
+              border-radius: 5px;
+		  }
+		</style>
 		<!-- All constant and settings value initialize -->
 		<script src="js/settings.js"></script>
 		
 		<script src="js/jquery-1.11.1.min.js"></script>
 		<script src="js/jquery.mobile-1.4.5.min.js"></script>
+		<!--
 		<link rel="stylesheet" href="js/pdfjs/web/pdf_viewer.css">
-        <!-- for legacy browsers -->
         <script src="js/pdfjs/web/compatibility.js"></script>
         <script src="js/pdfjs/build/pdf.js"></script>
-        <script src="js/pdfjs/web/pdf_viewer.js"></script>
+        <script src="js/pdfjs/web/viewer.js"></script>
+        -->
 
 		<script src="cordova.js"></script>
+		<script src="js/analytics.js"></script>
 		<script src="js/database.js"></script>
 		<script src="js/file.js"></script>
 		<script src="js/util.js"></script>
