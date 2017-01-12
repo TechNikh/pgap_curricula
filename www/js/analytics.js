@@ -30,7 +30,7 @@ analyticsApp.onAnalyticsEvent = function(category, action, location, label, valu
   var d = new Date();
   var created = d.getTime();
   // generate UUID
-  var uuid = device.uuid + "-" + created;
+  var uuid = device.serial + "-" + created;
   
   var networkState = navigator.connection.type;
  // console.log("adarsh: networkState: " + networkState );
@@ -56,7 +56,7 @@ analyticsApp.uploaadAnalyticsEvent = function(uuid, created, category, action, l
   postEventsData.push(eventObj);
   postData["events"] = postEventsData;
   postData["client"] = {
-      "id" : device.uuid,
+      "id" : device.serial,
       "version" : APPLICATION_VERSION
     };
 
@@ -106,7 +106,7 @@ analyticsApp.uploadBatchToServer = function() {
 
           if(len > 0){
             postData["client"] = {
-                "id" : device.uuid,
+                "id" : device.serial,
                 "version" : APPLICATION_VERSION
               };
             console.log("adarsh: APPLICATION_VERSION: " + JSON.stringify(postData["client"]) );
