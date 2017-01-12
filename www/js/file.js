@@ -52,12 +52,12 @@ var AppFile = {
 
   },
   mdFileParse : function(fileEntry) {
-    console.log("jenny in mdFileParse" + JSON.stringify(fileEntry));
+   // console.log("jenny in mdFileParse" + JSON.stringify(fileEntry));
     fileEntry.file(function(file) {
       var reader = new FileReader();
 
       reader.onloadend = function() {
-        console.log("jenny Successful file read mdFileParse: " + this.result);
+       // console.log("jenny Successful file read mdFileParse: " + this.result);
         var mdFileData = this.result;
         if (mdFileData) {
           var YAMLfileData = mdFileData.substring(4, mdFileData
@@ -81,10 +81,16 @@ var AppFile = {
             //console.log("bannu: yaml parsed mdFileParse: " + JSON.stringify(doc));
             // Source: _articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
             $.each(doc.annotations, function(i, annotation) {
-              console.log("bannu: " + doc.uuid + annotation.quote);
+             // console.log("bannu: " + doc.uuid + annotation.quote);
               app.insertAnnotationsData(doc.uuid, annotation.uuid, annotation.quote, annotation.text,
                   annotation.comment);
             });
+          }else if(doc.type == "definition"){
+            //console.log("bannu: yaml parsed mdFileParse: " + JSON.stringify(doc));
+            app.insertDictionariesData(doc.uuid, doc.title,
+                description);
+            app.insertYAMLrecord(doc.uuid, fileEntry.name, filePathWithoutExt, fileExt,
+                doc.type, doc.offline_file, doc.title, description);
           }else{
             app.insertYAMLrecord(doc.uuid, fileEntry.name, filePathWithoutExt, fileExt,
               doc.type, doc.offline_file, doc.title, description);

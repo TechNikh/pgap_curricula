@@ -1,3 +1,5 @@
+var APPLICATION_VERSION = "1.0.2";
+
 var INSTALLATION_CHECK_VALUE = "eschooltogo_installed";
 var SETTING_PAGE_ID = "settings-page";
 var WEB_VIEWER_PAGE_ID = "webviewer-page";

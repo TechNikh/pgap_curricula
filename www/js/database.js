@@ -42,14 +42,18 @@ app.insertAnnotationsData = function(source, annot_uuid, annot_quote, annot_text
       });
 }
 
-app.insertAnalyticsEvent = function(category, action, location, label, value) {
-  console.log( "adarsh: insertAnalyticsEvent: " );
-  // created
-  var d = new Date();
-  var created = d.getTime();
-  // generate UUID
-  var uuid = device.uuid + "-" + created;
-  
+app.insertDictionariesData = function(uuid, word, definition) {
+  app.db
+      .transaction(function(tx) {
+        tx
+            .executeSql(
+                "INSERT INTO cache_dictionaries(uuid, word, definition) VALUES (?,?,?)",
+                [ uuid, word, definition ], app.onSuccess, app.onError);
+      });
+}
+
+app.insertAnalyticsEvent = function(uuid, created, category, action, location, label, value) {
+ // console.log("adarsh: insertAnalyticsEvent: " );
   app.db
       .transaction(function(tx) {
         tx
@@ -88,6 +92,20 @@ app.prepareCacheTables = function() {
         tx
             .executeSql(
                 'CREATE TABLE IF NOT EXISTS cache_annotations (id integer primary key, source text, annot_uuid text, annot_quote text, annot_text text, annot_comment text)',
+                app.onSuccess, app.onError);
+      });
+  
+  //Drop table
+  app.db.transaction(function(tx) {
+    tx.executeSql("DROP TABLE IF EXISTS cache_dictionaries", app.onSuccess,
+        app.onError);
+  });
+  // Create table
+  app.db
+      .transaction(function(tx) {
+        tx
+            .executeSql(
+                'CREATE TABLE IF NOT EXISTS cache_dictionaries (id integer primary key, uuid text, word text, definition text)',
                 app.onSuccess, app.onError);
       });
   

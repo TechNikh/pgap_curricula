@@ -1,34 +1,52 @@
 var sdcardLoc = '';
 var annotationsObject = {};
+//var dictionariesObject = {};
 var count = 0;
 var Application = {
   initWebViewerPage : function(url) {
-    console.log("initWebViewerPage: url " + url);
+   // console.log("initWebViewerPage: url " + url);
     // $('#web-view-frame').attr("src", url);
   },
   applyPDFviewerAnnotations : function(iframeSelector) {
-    console.log("adarsh: in applyPDFviewerAnnotations");
+    //console.log("adarsh: in applyPDFviewerAnnotations");
     $('div.textLayer div', $(iframeSelector).get(0).contentWindow.document)
     .each(
         function() {
           var contentfull = $(this).html();
-          console.log("adarsh: " + contentfull);
+         // console.log("adarsh: " + contentfull);
           $.each(annotationsObject, function(i, el) {
-            console.log("bannu : annotationsObject " + i);
+           // console.log("bannu : annotationsObject " + i);
             var re = new RegExp(i,"g");
             contentfull = contentfull
             .replace(
                 re,
                 '<span onclick="pdfAnnotationsViewerApp.onClickOfAnnotationQuote(\''+el.id+'\', \''+el.source_uuid+'\')" style="background:yellow; margin-left: -2px;">'+i+' </span>');
-            console.log("bannu : span onclick " + '<span onclick="pdfAnnotationsViewerApp.onClickOfAnnotationQuote(\''+el.id+'\')" style="');
+           // console.log("bannu : span onclick " + '<span onclick="pdfAnnotationsViewerApp.onClickOfAnnotationQuote(\''+el.id+'\')" style="');
           });
-          console.log("bannu: " + contentfull);
+         // console.log("bannu: " + contentfull);
           $(this).html(contentfull);
         });
   },
+  pannelAnnotationMoreHTMLcalculate : function(yaml_file_path, id, offline_file) {
+    var opener_file_more_string = '';
+    if(yaml_file_path){
+      yaml_file_path = yaml_file_path.substring(0, yaml_file_path.lastIndexOf("/")+1);
+     // console.log("asa yaml_file_path 2 " + yaml_file_path);
+      var opener_file_url = "file:///" + sdcardLoc + yaml_file_path + offline_file;
+     // console.log("asa blackie annotations: opener_file_url " + opener_file_url);
+      opener_file_more_string = ' <a onclick="pdfAnnotationsViewerApp.onClickOfAnnotationMoreLink(\''
+        + opener_file_url + '\')" href="pdfviewer.html?uuid='
+        + id
+        + '&link='
+        + opener_file_url
+        + '">'
+        + 'More...' + '</a>';
+    }
+    return opener_file_more_string;
+  },
   initPDFViewerPage : function(uuid, url) {
-    console.log("bannu initPDFViewerPage: url " + url);
-    console.log("bannu initPDFViewerPage: uuid " + uuid);
+   // console.log("bannu initPDFViewerPage: url " + url);
+   // console.log("bannu initPDFViewerPage: uuid " + uuid);
 
     $('#mypanel').attr("id", 'pdf-panel-'+uuid);
     $('#btn-panel-options').attr("id", 'btn-panel-'+uuid);
@@ -38,53 +56,114 @@ var Application = {
       name : DATABASE_NAME,
       location : 'default'
     });
-    app.insertAnalyticsEvent('PDF Viewer', 'Page View', url, '', '');
+    analyticsApp.onAnalyticsEvent('PDF Viewer', 'Page View', url, '', '');
+    // TODO: If dictionaries object is empty
+    //var pannelAnnotationHTML = '<div id="panel-annot-html">';
+    
     app.db.transaction(function(transaction) {
       transaction.executeSql(
           "SELECT cache_annotations.*, cache_yaml_files.path, cache_yaml_files.offline_file FROM cache_annotations LEFT JOIN cache_yaml_files ON cache_annotations.annot_uuid = cache_yaml_files.uuid  WHERE cache_annotations.source='"+uuid+"'", [], function(tx,
               results) {
             var len = results.rows.length, i;
-            console.log("bannu annotations: len " + len);
-            var pannelAnnotationHTML = '<div id="panel-annot-html">';
+           // console.log("asa bannu annotations: len " + len);
+            //var pannelAnnotationHTML = '<div id="panel-annot-html">';
+            var pannelAnnotationHTML = '';
+            // Resetting annotationsObject for new PDF file viewer
+            annotationsObject = {};
             for (i = 0; i < len; i++) {
+             // console.log("asa in for " + i);
               var annot_quote = results.rows.item(i).annot_quote;
-              var annot_comment = results.rows.item(i).annot_comment;
-              var annot_id = results.rows.item(i).annot_uuid;
-              //console.log("blackie annotations: annot_id " + annot_id);
-              //console.log("blackie: results.rows.item(i)"+ JSON.stringify(results.rows.item(i)));
-
-              annotationsObject[annot_quote] = {
-                  "id" : annot_id,
-                  "source_uuid" : uuid,
-                  "text" : results.rows.item(i).annot_text,
-                  "comment" : annot_comment
-                };
-              //results.rows.item(i).path = _articles/English/Wikipedia/Uncategorized/Outline of life forms
-              var yaml_file_path = results.rows.item(i).path;
-              yaml_file_path = yaml_file_path.substring(0, yaml_file_path.lastIndexOf("/")+1);
-              var opener_file_url = "file:///" + sdcardLoc + yaml_file_path + results.rows.item(i).offline_file;
-              console.log("blackie annotations: opener_file_url " + opener_file_url);
-              //var opener_file_url = 'storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf';
-              pannelAnnotationHTML += '<div class="annot bordered-box" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+' <a href="pdfviewer.html?uuid='
-              + results.rows.item(i).id
-              + '&link='
-              + opener_file_url
-              + '">'
-              + 'More...' + '</a></div>';
-              //pannelAnnotationHTML += '<div class="annot" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+' <a href="pdfviewer.html">More...</a></div>';
+              if(annot_quote.length >= 3){
+                var annot_comment = results.rows.item(i).annot_comment;
+                var annot_id = results.rows.item(i).annot_uuid;
+               // console.log("asa blackie annotations: annot_id " + annot_id);
+               // console.log("asa blackie: results.rows.item(i)"+ JSON.stringify(results.rows.item(i)));
+  
+                annotationsObject[annot_quote] = {
+                    "id" : annot_id,
+                    "source_uuid" : uuid,
+                    "text" : results.rows.item(i).annot_text
+                   // "comment" : annot_comment
+                  };
+               // console.log("asa annotationsObject"+ JSON.stringify(annotationsObject));
+  
+                //results.rows.item(i).path = _articles/English/Wikipedia/Uncategorized/Outline of life forms
+                var opener_file_more_string = Application.pannelAnnotationMoreHTMLcalculate(results.rows.item(i).path, results.rows.item(i).id, results.rows.item(i).offline_file);
+                //var opener_file_url = 'storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf';
+                //pannelAnnotationHTML += '<div class="annot bordered-box" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+opener_file_more_string+'</div>';
+                pannelAnnotationHTML += '<li data-filtertext="'+annot_quote+'" class="annot bordered-box" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+opener_file_more_string+'</li>';
+               // console.log("asa bannu annotations: pannelAnnotationHTML " + pannelAnnotationHTML);
+                //pannelAnnotationHTML += '<div class="annot" id="annot-'+annot_id+'"><strong>'+annot_quote+':</strong> '+annot_comment+' <a href="pdfviewer.html">More...</a></div>';
+              }
             }
+         // console.log("jenny before len > 0 condition" + len);
             if(len > 0){
-              pannelAnnotationHTML += '</div>';
-              console.log("bannu annotations: pannelAnnotationHTML " + pannelAnnotationHTML);
-              $('#pdf-panel-'+uuid+' .ui-panel-inner').append(pannelAnnotationHTML);
+              //console.log("asa in len > 0 condition" + len);
+              //pannelAnnotationHTML += '</div>';
+             // console.log("jenny bannu annotations: pannelAnnotationHTML " + pannelAnnotationHTML);
+              $('#pdf-panel-'+uuid+' .ui-panel-inner ul.annotations-list').append(pannelAnnotationHTML);
+              $('#pdf-panel-'+uuid+' .ui-panel-inner ul.annotations-list').listview('refresh');
+             // console.log("nick: appending to panel "+'#pdf-panel-'+uuid+' .ui-panel-inner'+pannelAnnotationHTML);
               //$('#panel-annot-html').height('3000px');
               //$('#mypanel').height('3200px');
               $('#pdf-panel-'+uuid).trigger( "updatelayout" );
               //$('#mypanel').append($('#panel-annot-html').height());
               //$("#btn-panel-options")[0].click();
             }
+           // console.log("jenny after len > 0 condition" + len);
           }, null);
     });
+    
+    if(true){
+      app.db.transaction(function(transaction) {
+        transaction.executeSql(
+            "SELECT cache_dictionaries.*, cache_yaml_files.path, cache_yaml_files.offline_file FROM cache_dictionaries LEFT JOIN cache_yaml_files ON cache_dictionaries.uuid = cache_yaml_files.uuid", [], function(tx,
+                results) {
+              var len = results.rows.length, i;
+             // console.log("asa bannu cache_dictionaries: len " + len);
+              // TODO: Don't reset everytime as the object is constant
+              //dictionariesObject = {};
+              //var pannelAnnotationHTML = '<div id="panel-dict-html">';
+              var pannelAnnotationHTML = '';
+              for (i = 0; i < len; i++) {
+               // console.log("asa in for " + i);
+                var dictionary_word = results.rows.item(i).word;
+                if(dictionary_word.length >= 3){
+                  var dictionary_uuid = results.rows.item(i).uuid;
+                  var dictionary_definition = results.rows.item(i).definition;
+                  /*dictionariesObject[dictionary_word] = {
+                      "id" : dictionary_uuid,
+                      "source_uuid" : uuid
+                    //  "definition" : dictionary_definition
+                    };*/
+                 // console.log("jenny before : opener_file_more_string " + results.rows.item(i).path);
+                  var opener_file_more_string = Application.pannelAnnotationMoreHTMLcalculate(results.rows.item(i).path, results.rows.item(i).id, results.rows.item(i).offline_file);
+                 // console.log("jenny after : opener_file_more_string " + opener_file_more_string);
+                  //var opener_file_url = 'storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf';
+                  //pannelAnnotationHTML += '<div class="annot bordered-box" id="annot-'+dictionary_uuid+'"><strong>'+dictionary_word+':</strong> ' + dictionary_definition + opener_file_more_string+'</div>';
+                  pannelAnnotationHTML += '<li data-filtertext="'+dictionary_word+'" class="annot bordered-box" id="annot-'+dictionary_uuid+'"><strong>'+dictionary_word+':</strong> ' + dictionary_definition + opener_file_more_string+'</li>';
+                }
+              }
+              
+             // console.log("jenny before len > 0 condition" + len);
+              if(len > 0){
+                //console.log("asa in len > 0 condition" + len);
+                //pannelAnnotationHTML += '</div>';
+               // console.log("jenny bannu annotations: pannelAnnotationHTML " + pannelAnnotationHTML);
+                $('#pdf-panel-'+uuid+' .ui-panel-inner ul.annotations-list').append(pannelAnnotationHTML);
+                $('#pdf-panel-'+uuid+' .ui-panel-inner ul.annotations-list').listview('refresh');
+               // console.log("nick: appending to panel "+'#pdf-panel-'+uuid+' .ui-panel-inner'+pannelAnnotationHTML);
+                //$('#panel-annot-html').height('3000px');
+                //$('#mypanel').height('3200px');
+                $('#pdf-panel-'+uuid).trigger( "updatelayout" );
+                //$('#mypanel').append($('#panel-annot-html').height());
+                //$("#btn-panel-options")[0].click();
+              }
+             // console.log("jenny after len > 0 condition" + len);
+              
+          }, null);
+        });
+    }
     // file:///storage/sdcard1/Downloads/eschool-android-sdcard/eschool2go/_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
     //_articles/English/Textbooks/India/Telangana/SSC/Biology/1. Nutrition - Food supplying system.pdf
     //annotationsObject = url;
@@ -97,17 +176,18 @@ var Application = {
     $('#pdf-view-frame').attr("id", 'pdf-frame-'+uuid);
     $('#pdf-frame-'+uuid).attr("src", "js/pdfjs/web/viewer.html?file="+url);
     //$('#pdf-view-frame').attr("src", "http://wikipediainschools.org/");
-    $("#showAllAnnotations").click(
+    /*$("#showAllAnnotations").click(
         function() {
           console.log("adarsh: in showAllAnnotations");
           Application.applyPDFviewerAnnotations('#pdf-frame-'+uuid);
-        });
+        });*/
   },
 
   initApplication : function() {
     // http://stackoverflow.com/questions/38720493/how-to-check-internet-connection-on-a-cordova-app
     document.addEventListener("online", analyticsApp.onOnline, false);
     document.addEventListener("offline", analyticsApp.onOffline, false);
+    document.addEventListener("backbutton", analyticsApp.onBackKeyDown, false);
 
     var settingsFromLocalStorage = window.localStorage.getItem("'"
         + SETTING_LOCAL_STORAGE_NAME + "'");
@@ -138,7 +218,7 @@ var Application = {
       //console.log("bannu: params"+ JSON.stringify(params));
       var uuid = params.uuid;
       var url = params.link;
-      console.log("bannu: uuid" + params.uuid);
+     // console.log("bannu: uuid" + params.uuid);
       Application.initPDFViewerPage(uuid, url);
     }).on(
         'pageinit',
@@ -195,14 +275,14 @@ var Application = {
   },
 
   callFirstTimeApplicationLaunch : function() {
-    console.log( "adarsh: callFirstTimeApplicationLaunch: " );
+   // console.log("adarsh: callFirstTimeApplicationLaunch: " );
     app.db = window.sqlitePlugin.openDatabase({
       name : DATABASE_NAME,
       location : 'default'
     });
-    console.log( "adarsh: before prepareCacheTables: " );
+   // console.log("adarsh: before prepareCacheTables: " );
     app.prepareCacheTables();
-    console.log( "adarsh: after prepareCacheTables: " );
+   // console.log("adarsh: after prepareCacheTables: " );
     /*
     // Single folder selector
     $.mobile.loading('show');
@@ -297,7 +377,7 @@ var Application = {
     $("#uploadAnalyticsToServer").click(
         function() {
           // console.log("droidbase: in uploadAnalyticsToServer");
-          analyticsApp.uploadToServer();
+          analyticsApp.uploadBatchToServer();
         });
     $("#clearCacheBtn").click(
         function() {
@@ -444,7 +524,7 @@ var Application = {
       name : DATABASE_NAME,
       location : 'default'
     });
-    app.insertAnalyticsEvent('Explorer', 'Page View', categParent, '', '');
+    analyticsApp.onAnalyticsEvent('Explorer', 'Page View', categParent, '', '');
     // console.log("initListExplorerPage: categParent"+categParent)
     if (categParent == '') {
       app.db.transaction(function(transaction) {
@@ -486,9 +566,6 @@ var Application = {
           : EXPLORER_LISTVIEW_ID;
       var hyphened_categParent = categParent.replace(/\//g, '-');
       hyphened_categParent = hyphened_categParent.replace(/\s+/g, '-');
-      console
-          .log('initListExplorerPage: listview_id+"-" + hyphened_categParent '
-              + listview_id + "-" + hyphened_categParent);
       $('#' + listview_id).attr("id", listview_id + "-" + hyphened_categParent);
       var $contentsList = $('#' + listview_id + '-' + hyphened_categParent);
 
@@ -526,11 +603,7 @@ var Application = {
                           + categParent + "%'",
                       [],
                       function(tx, results) {
-                        console.log(JSON.stringify(results));
                         var len = results.rows.length, i;
-                        console
-                            .log("initListExplorerPage: len = results.rows.length"
-                                + len)
                         var listItemsObj = {}
                         for (i = 0; i < len; i++) {
                           var filePathWithOutExt = results.rows.item(i).unified_path;
@@ -560,20 +633,9 @@ var Application = {
                         if (categParent) {
                           categParent = categParent + '/';
                         }
-                        console.log("initListExplorerPage: listItemsObj "
-                            + JSON.stringify(listItemsObj));
                         // If length of listItemsObj is 1 and not file
-                        console.log("initListExplorerPage: listItemsObj length"
-                            + Object.keys(listItemsObj).length);
-                        console
-                            .log("initListExplorerPage: Object.keys(listItemsObj) "
-                                + JSON.stringify(Object.keys(listItemsObj)[0]));
                         if (Object.keys(listItemsObj).length == 1
                             && !Object.keys(listItemsObj)[0].endsWith(".yaml")) {
-                          console
-                              .log("initListExplorerPage: Object.values(listItemsObj) "
-                                  + JSON
-                                      .stringify(Object.keys(listItemsObj)[0]));
                           var folderMultiPathArray = [];
                           var minimum_length = 100;
                           for (i = 0; i < len; i++) {
@@ -588,8 +650,6 @@ var Application = {
                             // Remove categParent
                             var folderPath = filePathWithOutExt
                                 .substring(categParent.length);
-                            console.log("initListExplorerPage: folderPath "
-                                + folderPath);
                             // Remove file name
                             var folderPathArray = folderPath.split("/");
                             folderPathArray.pop()
@@ -597,26 +657,12 @@ var Application = {
                             if (folderPathArray.length < minimum_length) {
                               minimum_length = folderPathArray.length;
                             }
-                            console
-                                .log("initListExplorerPage: filePathWithOutExt unified_path "
-                                    + filePathWithOutExt);
                           }
-                          console
-                              .log("initListExplorerPage: folderMultiPathArray "
-                                  + JSON.stringify(folderMultiPathArray));
                           var matchingComponentArray = [];
-                          console.log("initListExplorerPage: minimum_length "
-                              + minimum_length);
                           for (i = 0; i < minimum_length; i++) {
                             var matching_component = folderMultiPathArray[0][i];
                             var is_matched = true;
-                            console
-                                .log("initListExplorerPage: matching_component "
-                                    + matching_component);
                             for (var j = 1; j < folderMultiPathArray.length; j++) {
-                              console
-                                  .log("initListExplorerPage: j i folderMultiPathArray[j][i] "
-                                      + j + i + folderMultiPathArray[j][i]);
                               if (folderMultiPathArray[j][i] != matching_component) {
                                 is_matched = false;
                               }
@@ -625,9 +671,6 @@ var Application = {
                               matchingComponentArray.push(matching_component);
                             }
                           }
-                          console
-                              .log("initListExplorerPage: matchingComponentArray "
-                                  + JSON.stringify(matchingComponentArray));
                           var listItemsObj = {}
                           listItemsObj[matchingComponentArray.join('/')] = {
                             "isFile" : false,
@@ -652,17 +695,6 @@ var Application = {
                                           + '" />';
                                     }
                                     if (el.type && (el.type == "video")) {
-                                      console.log("initListExplorerPage: el "
-                                          + JSON.stringify(el));
-                                      console
-                                          .log("initListExplorerPage: el.type 1"
-                                              + el.type);
-                                      console
-                                          .log("initListExplorerPage: el.offline_file "
-                                              + el.offline_file);
-                                      console
-                                          .log("initListExplorerPage: el.offline_file.trim()"
-                                              + el.offline_file.trim());
                                       // check for video file webm or mp4 or mkv
                                       // _videos folder
                                       // replace space with %20
@@ -677,21 +709,16 @@ var Application = {
                                       // opener_file_url.replace(/\s+/g, '%20');
                                       var htmlItems = '<li>'
                                           + image_html
-                                          + '<span onclick="window.plugins.fileOpener.open(\'file:///'
+                                          + '<span onclick="Application.onClickOfFileOpener(\''
                                           + opener_file_url + '\')">'
                                           + file_display_name + '</span></li>';
-                                      console.log("initListExplorerPage: "
-                                          + htmlItems);
                                     } else if (el.type
-                                        && (el.type == "article")) {
-                                      console.log("rahul: el "
-                                          + JSON.stringify(el));
-                                      console.log("rahul: el.type 1" + el.type);
-                                      console.log("rahul: el.offline_file "
-                                          + el.offline_file);
-                                      console
-                                          .log("rahul: el.offline_file.trim()"
-                                              + el.offline_file.trim());
+                                        && (el.type == "article" || el.type == "definition")) {
+                                      if (el.type == "article") {
+                                        var rootDir = '_articles/';
+                                      }else if (el.type == "definition") {
+                                        var rootDir = '_definitions/';
+                                      }
                                       // check for video file webm or mp4 or mkv
                                       // _videos folder
                                       // replace space with %20
@@ -699,7 +726,7 @@ var Application = {
                                       // %20 or whole string in quotes
                                       // "/mnt/sdcard/Documents/To Read.html"
                                       var opener_file_url = sdcardLoc
-                                          + '_articles/' + categParent
+                                          + rootDir + categParent
                                           + el.offline_file.trim();
                                       //opener_file_url = opener_file_url.replace(/\s+/g, '%20');
                                       var htmlItems = '<li><a href="pdfviewer.html?uuid='
@@ -708,7 +735,6 @@ var Application = {
                                           + opener_file_url
                                           + '">'
                                           + file_display_name + '</a></li>';
-                                      console.log("rahul: " + htmlItems);
                                     } else {
                                       // unknown file type
                                       var htmlItems = '<li>'
@@ -726,8 +752,6 @@ var Application = {
                                         + el.name
                                         + '</a></li>';
                                   }
-                                  console.log("initListExplorerPage: "
-                                      + htmlItems);
                                   $contentsList.append(htmlItems);
                                 });
                         $contentsList.listview('refresh');
@@ -742,6 +766,12 @@ var Application = {
         return false;
       }
     }
+  },
+  onClickOfFileOpener : function(opener_file_url) {
+    //console.log( "jennik: onClickOfFileOpener:" + opener_file_url );
+    // category, action, location, label, value
+    analyticsApp.onAnalyticsEvent('Explorer', 'file click', opener_file_url, '', '');
+    window.plugins.fileOpener.open('file:///' + opener_file_url);
   },
   initListIndexPage : function(categParent) {
     if (!categParent || (categParent.indexOf(HOME_PAGE_NAME) !== -1)) {

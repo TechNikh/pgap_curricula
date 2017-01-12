@@ -18,13 +18,12 @@
                 class="ui-icon-grid ui-btn ui-btn-icon-left" title="Options" id="btn-panel-options">Options</a>
 		</header>
 		<div data-role="content">
-			<iframe id="pdf-view-frame" src='#' height='627px' width='100%' scrolling='auto' frameBorder='0' ></iframe>
+			<iframe id="pdf-view-frame" src='#' height='450px' width='100%' scrolling='auto' frameBorder='0' ></iframe>
 		</div>
-		<div data-role="panel" id="mypanel" data-position="right" data-display="overlay">
+		<div data-role="panel" id="mypanel" data-position="right" data-display="reveal">
 			<!-- panel content goes here -->
-			Filter Annotations
-			<a href="#" id="showAllAnnotations" data-role="button" data-inline="true">Show All</a>
-			<div class="ui-panel-inner"></div>
+			 <!-- <a href="#" id="showAllAnnotations" data-role="button" data-inline="true">Show All</a> -->
+			<div class="ui-panel-inner"><ul class="annotations-list" data-role="listview" data-filter="true"></ul></div>
 		</div>
 	</div>
 </body>
