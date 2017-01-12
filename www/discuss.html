@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Discussion</title>
+	</head>
+   <body>
+	<style>
+	</style>
+	  
+      <div id="list-discussion-page" data-role="page" data-title="Ask Me">
+		 <div data-role="header">
+			<a href="#popupFilter" data-rel="popup" data-position-to="window" data-theme="b" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-left ui-icon-search ui-btn-icon-left ui-btn-b" data-transition="pop">Filter</a>
+			<h1>Discussion</h1>
+			<a href="#popupLogin" data-rel="popup" data-position-to="window" data-theme="b" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-right ui-icon-comment ui-btn-icon-left ui-btn-b" data-transition="pop">Ask</a>
+			<div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all" data-dismissible="false">
+			 <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+				<form id="ask-form" name="ask-form" action="discuss.html">
+					<div style="padding:10px 20px;">
+						<h3>Please Ask Question</h3>
+						<input type="text" id="questionTitle" placeholder="Question Title" data-theme="a"/>
+						<textarea cols="60" rows="5" name="question" id="question" value="" placeholder="Question" data-theme="a"></textarea>
+						<button type="submit" id="btnAskSubmit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Submit</button>
+					</div>
+				</form>
+			</div>
+			
+			<div data-role="popup" id="popupFilter" data-theme="a" class="ui-corner-all" data-dismissible="false">
+			 <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+				<form id="filter-form" name="filter-form" action="discuss.html">
+					<div style="padding:10px 20px;">
+						<h3>Select Filter By</h3>
+						<a href='#' class="RecentlyPosted" rel="external"   data-inline='true' data-role='button' id='btnRecentlyPosted'>Recently Posted</a>
+						<a href='#' class="MostLiked" rel="external"  data-inline='true' data-role='button' id='btnMostLiked'>Most Liked</a>
+						<a href='#' class="MostDisliked" rel="external"  data-inline='true' data-role='button' id='btnMostDisliked'>Most Disliked</a>
+						<a href='#' class="UnAnswered" rel="external"  data-inline='true' data-role='button' id='btnUnanswered'>Un Answered</a>
+						<!-- <button type="submit" id="btnAskSubmit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Submit</button> -->
+					</div>
+				</form>
+			</div>
+		</div>
+	
+         <div data-role="content">
+		 <div data-role="collapsible-set" data-content-theme="a" data-iconpos="right" id="set" class="ui-collapsible-set ui-group-theme-inherit ui-corner-all">
+            <ul id="question-list" data-role="listview" data-filter="true" data-inset="true">
+            </ul>
+			</div>
+		</div>
+		 <footer data-role="footer" data-position="fixed">
+			 <div data-role="navbar">
+				<ul>
+				<!--class="ui-btn-active"-->
+				  <li><a href="explorer.html" data-icon="home" >Explore</a></li>
+				  <li><a href="settings.html" data-icon="gear" >Settings</a></li>
+				  <li><a href="discuss.html" data-icon="comment" class="ui-btn-active ui-state-persist" >Discuss</a></li>
+				</ul>
+			 </div>
+		 </footer><!-- /footer -->
+      </div>
+   </body>
+</html>
