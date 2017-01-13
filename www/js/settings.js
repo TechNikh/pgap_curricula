@@ -1,4 +1,4 @@
-var APPLICATION_VERSION = "1.0.3";
+var APPLICATION_VERSION = "1.0.4";
 
 var INSTALLATION_CHECK_VALUE = "eschooltogo_installed";
 var SETTING_PAGE_ID = "settings-page";
