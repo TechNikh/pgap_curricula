@@ -6,6 +6,7 @@ var Application = {
     console.log("initWebViewerPage: url " + url);
     // $('#web-view-frame').attr("src", url);
   },
+  
   initPDFViewerPage : function(url) {
     console.log("initPDFViewerPage: url " + url);
     annotationsObject = url;
@@ -18,6 +19,13 @@ var Application = {
     $('#pdf-view-frame').attr("src", "js/pdfjs/web/viewer.html?file="+url);
   },
 
+  initGoogleAnalytics : function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 
+                  'js/ga.js';
+		  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  },
+  
   initApplication : function() {
     var settingsFromLocalStorage = window.localStorage.getItem("'"
         + SETTING_LOCAL_STORAGE_NAME + "'");
@@ -51,7 +59,9 @@ var Application = {
             categParent = '';
           }
           Application.initListExplorerPage(categParent);
-        });
+        })
+		.on('pageinit','#' + DISCUSSION_VIEWER_PAGE_ID,function() {Application.initDiscussionPage();});
+		
     Application.openLinksInApp();
     if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) != undefined) {
       Application.initListIndexPage();
@@ -163,7 +173,8 @@ var Application = {
                   + APPLICATION_DATABASE_FOLDER_NAME + "/" + DATABASE_NAME,
               AppFile.copyDBtoSDcard, Application.fail);
         });
-    $("#copyDBfromSDcard").click(
+
+		$("#copyDBfromSDcard").click(
         function() {
           // console.log("droidbase: in copyDBfromSDcard");
           var settings = JSON.parse(window.localStorage.getItem("'"
@@ -174,7 +185,8 @@ var Application = {
               + SDCARD_DATABASE_FOLDER_NAME + "/" + DATABASE_NAME,
               AppFile.copyDBfromSDcard, Application.fail);
         });
-    $("#clearCacheBtn").click(
+
+		$("#clearCacheBtn").click(
         function() {
           // console.log("droidsung: in clearCacheBtn nik-" +
           // cordova.file.externalRootDirectory);
@@ -194,7 +206,8 @@ var Application = {
               Application.addFileEntry, Application.fail);
           window.localStorage.setItem(INSTALLATION_CHECK_VALUE, true);
         });
-    $('#settings-form').submit(
+ 
+ $('#settings-form').submit(
         function(event) {
           event.preventDefault();
           sdcardLoc = $("#" + SETTING_PAGE_SDCARD_LOCATION_TEXT_BOX_ID).val()
@@ -336,6 +349,7 @@ var Application = {
       return false;
     }
   },
+  
   initListExplorerPage : function(categParent, listview_id) {
     app.db = window.sqlitePlugin.openDatabase({
       name : DATABASE_NAME,
@@ -636,6 +650,7 @@ var Application = {
       }
     }
   },
+  
   initListIndexPage : function(categParent) {
     if (!categParent || (categParent.indexOf(HOME_PAGE_NAME) !== -1)) {
       categParent = VIDEO_FOLDER_NAME;
@@ -643,4 +658,171 @@ var Application = {
     categParent = '';
     Application.initListExplorerPage(categParent, 'index-contents-list');
   },
+  
+  initDiscussionPage : function() {
+  	GAPageLoad();
+	LoadData();
+
+	function GAPageLoad()
+	{
+		try {
+			_gaq.push([GA_NAME_PAGE_LOAD, GA_ID_PAGE_LOAD]);
+			if ($.mobile.activePage.attr("data-url")) {
+				_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
+			} else {
+				_gaq.push(['_trackPageview']);
+			}
+		} catch(err) { console.log(err);}
+	}
+	
+	function GAAddQuestion()
+	{
+		try {
+			_gaq.push([GA_NAME_ADD_QUESTION, GA_ID_ADD_QUESTION]);
+			if ($.mobile.activePage.attr("data-url")) {
+				_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
+			} else {
+				_gaq.push(['_trackPageview']);
+			}
+		} catch(err) { console.log(err);}
+	}
+		
+	$('#ask-form').submit(
+		function(event) {
+		  app.db = window.sqlitePlugin.openDatabase({
+            name : DATABASE_NAME,
+            location : 'default'
+          });
+		  var askValue = $('textarea#question').val();
+		  var title = $('input#questionTitle').val();
+		  app.insertDiscussionPoints(title,askValue,LoadData);
+		  $('textarea#question').val('');
+		  $('input#questionTitle').val('');
+		   navigator.notification.alert('Your question saved sucessfully.');
+		   //LoadData();
+		   GAAddQuestion();
+        });
+
+		function LoadData()
+		{
+			LoadData('');
+		}
+		
+		function getParameterByName(name, url) {
+				if (!url) {
+				  url = window.location.href;
+				}
+				name = name.replace(/[\[\]]/g, "\\$&");
+				var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+					results = regex.exec(url);
+				if (!results) return null;
+				if (!results[2]) return '';
+				return decodeURIComponent(results[2].replace(/\+/g, " "));
+			}
+		
+		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_RECENT_POSTED, function() {
+			LoadData(DISCUSSION_FILTER_RECENT_POSTED);
+			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
+		});
+		
+		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_LIKED, function() {
+			LoadData(DISCUSSION_FILTER_MOST_LIKED);
+			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
+		});
+		
+		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_DISLIKED, function() {
+			LoadData(DISCUSSION_FILTER_MOST_DISLIKED);
+			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
+		});
+		
+		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_UN_ANSWERED, function() {
+			LoadData(DISCUSSION_FILTER_UN_ANSWERED);
+			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
+		});
+		
+		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.like', function() {
+			var btnId = $(this).attr('id');
+			var discussionId = btnId.replace(DISCUSSION_LIKE_BUTTON_PREFIX,'');
+			app.updateDiscussionAnswer(discussionId,DISCUSSION_LIKE_ANSWER_VALUE);
+			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
+			//$('#'+btnId).button('refresh');
+			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
+			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).button("refresh");
+			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).button("refresh");
+		});
+		
+		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.dislike', function() {
+			var btnId = $(this).attr('id');
+			var discussionId = btnId.replace(DISCUSSION_DISLIKE_BUTTON_PREFIX,'');
+			app.updateDiscussionAnswer(discussionId,DISCUSSION_DISLIKE_ANSWER_VALUE);
+			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
+			//$('#'+btnId).button('refresh');
+			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
+			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).button('refresh');
+			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).button('refresh');
+		});
+		
+		function LoadData(filterByPar)
+		{
+			$.mobile.loading('show');	
+			app.db = window.sqlitePlugin.openDatabase({
+			  name : DATABASE_NAME,
+			  location : 'default'
+			});
+			app.db.transaction(function(transaction) {
+			
+			var filterBy = filterByPar;
+			
+			var query = "SELECT discussion_points.* FROM discussion_points";
+			switch(filterBy) {
+				case DISCUSSION_FILTER_RECENT_POSTED:
+					query = "SELECT discussion_points.* FROM discussion_points ORDER BY Id Desc";
+					break;
+				case DISCUSSION_FILTER_MOST_LIKED:
+					query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_LIKE_ANSWER_VALUE+"'";
+					break;
+				case DISCUSSION_FILTER_MOST_DISLIKED:
+					query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_DISLIKE_ANSWER_VALUE+"'";
+					break;
+				case DISCUSSION_FILTER_UN_ANSWERED:
+					query = "SELECT discussion_points.* FROM discussion_points WHERE Answer IS NULL";
+					break;
+			}
+		
+        transaction.executeSql(
+            query, [], function(tx,
+			results) {
+			  var listItemsObj = {};
+			  var len = results.rows.length, i;
+			  $("#"+DISCUSS_LISTVIEW_ID).empty();
+			  for (i = 0; i < len; i++) {
+			  var discussionTitle = results.rows.item(i).Discussion_Title_Point;
+				var discussionDescription = results.rows.item(i).Discussion_Point;
+				var discussionAnswer = results.rows.item(i).Answer;
+				var discussionId = results.rows.item(i).Id;
+				
+				if(discussionDescription != "")
+				{
+					var likeActiveClass = (discussionAnswer  == DISCUSSION_LIKE_ANSWER_VALUE ? ACTIVE_BUTTON_CLASS : "");
+					var dislikeActiveClass = (discussionAnswer  == DISCUSSION_DISLIKE_ANSWER_VALUE ? ACTIVE_BUTTON_CLASS : "");
+					var content = "<li id="+discussionId+" ><div data-role='collapsible' id='set" + discussionId + "'><h3>" + discussionTitle 
+											+ "</h3><p>"+discussionDescription 
+											+ "</p>"
+											+"<form>"
+											+"<a href='#' data-inline='true' data-role='button' class='like "+likeActiveClass+"' id='btnLike"+discussionId+"'>Like</a>"
+											+" <a href='#' data-inline='true' data-role='button' class='dislike "+dislikeActiveClass+"' id='btnDislike"+discussionId+"'>Dislike</a>"
+											+"</form>"
+											+"</div></li>";
+						$("#"+DISCUSS_LISTVIEW_ID).append(content);
+						//.collapsibleset("refresh");
+				}	
+				}
+				//var collapsibleSet=$("#set");
+                //collapsibleSet.trigger('create');
+				$("#"+DISCUSS_LISTVIEW_ID).trigger("create");
+				$.mobile.loading('hide');	   
+				},null);});
+		}
+		
+	},
 };
