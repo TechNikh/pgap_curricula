@@ -7,11 +7,35 @@
 	</head>
    <body>
 	<style>
+		.alnright { text-align: right; }
+		
+		.card {
+			  background: #FFF;
+			  border: 1px solid #AAA;
+			  box-shadow: 0px 2px 3px 0px #AAA;
+			  padding: 0px;
+			  margin-top: 15px;
+			  margin-right: 7.5px;
+			  margin-bottom: 15px;
+			  margin-left: 7.5px;
+			  overflow: hidden;
+			  border-radius: 3px;
+			}
+			.card h1 {
+			  margin: 0px;
+			  padding: 10px;
+			  padding-bottom: 0px;
+			}
+			.card p {
+			  margin: 0px;
+			  padding: 10px;
+			}
+			
 	</style>
 	  
       <div id="list-discussion-page" data-role="page" data-title="Ask Me">
 		 <div data-role="header">
-			<a href="#popupFilter" data-rel="popup" data-position-to="window" data-theme="b" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-left ui-icon-search ui-btn-icon-left ui-btn-b" data-transition="pop">Filter</a>
+			<a href="#popupFilter" data-rel="popup" data-position-to="window" data-theme="a" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-left ui-icon-bullets ui-btn-icon-left ui-btn-a" data-transition="pop">Filter</a>
 			<h1>Discussion</h1>
 			<a href="#popupLogin" data-rel="popup" data-position-to="window" data-theme="b" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-right ui-icon-comment ui-btn-icon-left ui-btn-b" data-transition="pop">Ask</a>
 			<div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all" data-dismissible="false">
@@ -34,11 +58,18 @@
 						<a href='#' class="RecentlyPosted" rel="external"   data-inline='true' data-role='button' id='btnRecentlyPosted'>Recently Posted</a>
 						<a href='#' class="MostLiked" rel="external"  data-inline='true' data-role='button' id='btnMostLiked'>Most Liked</a>
 						<a href='#' class="MostDisliked" rel="external"  data-inline='true' data-role='button' id='btnMostDisliked'>Most Disliked</a>
+						<a href='#' class="MostUseful" rel="external"  data-inline='true' data-role='button' id='btnMostUseful'>Most Useful</a>
+						<a href='#' class="MostNonUseful" rel="external"  data-inline='true' data-role='button' id='btnMostNonUseful'>Most Non-Useful</a>
 						<a href='#' class="UnAnswered" rel="external"  data-inline='true' data-role='button' id='btnUnanswered'>Un Answered</a>
+						<a href='#' class="MostAnswered" rel="external"  data-inline='true' data-role='button' id='btnMostAnswered'>Most Answered</a>
+						<a href='#' class="MostView" rel="external"  data-inline='true' data-role='button' id='btnMostView'>Most View</a>
 						<!-- <button type="submit" id="btnAskSubmit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Submit</button> -->
 					</div>
 				</form>
 			</div>
+			<div id="modelPopupContent">
+			</div>
+			
 		</div>
 	
          <div data-role="content">
