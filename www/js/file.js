@@ -1,8 +1,9 @@
 var AppFile = {
   copyDBtoSDcard : function(fileEntry) {
     // console.log("dbase in mdFileParse"+ JSON.stringify(fileEntry));
-    var settings = JSON.parse(window.localStorage.getItem('settings'));
-    var sdcardLoc = settings.sdcardLoc;
+    var settings = JSON.parse(window.localStorage.getItem("'"
+        + SETTING_LOCAL_STORAGE_NAME + "'"));
+    sdcardLoc = settings.sdcardLoc;
     // console.log("nik-success sdcardLoc"+sdcardLoc);
     window.resolveLocalFileSystemURL("file:///" + sdcardLoc,
         function onSuccess(dirEntry) {
@@ -11,7 +12,7 @@ var AppFile = {
             exclusive : false
           }, function onSuccess(dirEntry) {
             // console.log("nik-success parentEntry"+JSON.stringify(dirEntry));
-            fileEntry.copyTo(dirEntry, "'" + DATABASE_NAME + "'", function() {
+            fileEntry.copyTo(dirEntry, DATABASE_NAME, function() {
               // console.log('copying was successful')
               navigator.notification.alert('Copied database to SD card.');
             }, function() {
