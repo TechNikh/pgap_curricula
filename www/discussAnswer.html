@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Discussion</title>
+	  
+	  <style>
+		
+		
+		.card {
+			background:#FFF;
+			border:1px solid #AAA;
+			border-bottom:3px solid #BBB;
+			padding:0px;
+			margin:15px;
+			overflow:hidden;
+			}
+					
+			.card h1 {
+				margin:0px;
+				padding:10px;
+				padding-bottom:0px;
+			}
+			.card p {
+				margin:0px;
+				padding:10px;
+			}
+			
+		</style>
+		
+	</head>
+   <body>
+      <div id="list-discussion-answer-page" data-role="page" data-title="Ask Me">
+		 <div data-role="header">
+			<a href="#" data-rel="back" data-position-to="window" data-theme="a" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-left ui-icon-arrow-l ui-btn-icon-left ui-btn-a" data-transition="pop">Back</a>
+			<h1>Discussion</h1>
+			<a href="#popupAnswer" data-rel="popup" data-position-to="window" data-transition='pop' data-theme="b" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-right ui-icon-comment ui-btn-icon-left ui-btn-b" data-transition="pop">Answer</a>
+		</div>
+		
+		<div data-role='popup' id='popupAnswer' data-theme='a' class='divpopup ui-corner-all' data-dismissible='false'>
+			<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>
+			<div style='padding:10px 20px;'>
+			<h3>Please add answer</h3>
+			<textarea cols='60' rows='15' name='answer' id='txtAnswer' value='' placeholder='Answer' data-theme='a'></textarea>
+			<a href='#' data-inline='true' data-role='button' class='answer' id='btnSaveAnswer'>Save</a>
+			</div>
+		</div>
+			
+         <div data-role="content">
+		 <div class="card">
+			<h1><div id="discussionTitle"></div></h1>
+			<p id="discussionDescription"></p>
+			<a href='#' data-inline='true' data-role='button' class='like' id="btndetailDiscussionLike" >Like  - <span id="lblLikeCount" class="likeCount"></span></a>
+			<a href='#' data-inline='true' data-role='button' class='dislike' id="btndetailDiscussionDislike">Dislike  - <span id="lblDisLikeCount" class="likeCount"></span></a>
+			<a href='#' data-inline='true' data-role='button' class='useful' id="btndetailDiscussionUseful">Useful  - <span id="lblUsefulCount" class="likeCount"></span></a>
+			<a href='#' data-inline='true' data-role='button' class='nonuseful ' id="btndetailDiscussionNonuseful">NonUseful  - <span id="lblNonUsefulCount" class="likeCount"></span></a>
+											
+		</div>
+
+		 <div data-role="collapsible-set" data-content-theme="a" data-iconpos="right" id="setAnswer" class="ui-collapsible-set ui-group-theme-inherit ui-corner-all">
+            <ul id="answer-list" data-role="listview" data-filter="true" data-inset="true">
+            </ul>
+			</div>
+		</div>
+		 <footer data-role="footer" data-position="fixed">
+			 <div data-role="navbar">
+				<ul>
+				<!--class="ui-btn-active"-->
+				  <li><a href="explorer.html" data-icon="home" >Explore</a></li>
+				  <li><a href="settings.html" data-icon="gear" >Settings</a></li>
+				  <li><a href="discuss.html" data-icon="comment" class="ui-btn-active ui-state-persist" >Discuss</a></li>
+				</ul>
+			 </div>
+		 </footer><!-- /footer -->
+      </div>
+   </body>
+</html>
