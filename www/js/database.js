@@ -91,6 +91,16 @@ app.onSuccessWithCallback = function(tx, r,callback) {
   $.mobile.loading('hide');	
 }
 
+app.onSuccessWithCallbackReturnResult = function(tx, r,callback) {
+  callback(r);
+  $.mobile.loading('hide');	
+}
+
+app.onSuccessWithCallbackReturnResultAndId = function(tx, r,callback,id) {
+  callback(r,id);
+  $.mobile.loading('hide');	
+}
+
 app.onError = function(tx, e) {
 
   console.log("SQLite Error: " + JSON.stringify(e));
@@ -122,9 +132,13 @@ app.privateInsertDiscussionPoints = function(title,question,callback){
 app.updateDiscussionAnswer = function(id,answer){
 	app.db.transaction(function(tx) {
 		
-		tx.executeSql("UPDATE discussion_points_answer SET Answer = '"+answer+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
-		tx.executeSql(
-				"INSERT INTO discussion_points_answer (Discussion_Point_Id,User_Id,Answer) SELECT "+id+","+GLOBAL_USER_ID+",'"+answer+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_answer WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
+		//tx.executeSql("UPDATE discussion_points_answer SET Answer = '"+answer+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
+		//tx.executeSql(
+				//"INSERT INTO discussion_points_answer (Discussion_Point_Id,User_Id,Answer) SELECT "+id+","+GLOBAL_USER_ID+",'"+answer+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_answer WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
+			//[], app.onSuccess, app.onError);
+			
+			tx.executeSql(
+				"INSERT INTO discussion_points_answer (Discussion_Point_Id,User_Id,Answer) SELECT "+id+","+GLOBAL_USER_ID+",'"+answer+"';",
 			[], app.onSuccess, app.onError);
 			
 		//tx.executeSql(
@@ -135,21 +149,29 @@ app.updateDiscussionAnswer = function(id,answer){
 
 app.updateDiscussionLikeDislike = function(id,likedislike){
 	app.db.transaction(function(tx) {
-		tx.executeSql("UPDATE discussion_points_likedislike SET LikeDisLike = '"+likedislike+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
+		//tx.executeSql("UPDATE discussion_points_likedislike SET LikeDisLike = '"+likedislike+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
 		
-		console.log("INSERT INTO discussion_points_likedislike (Discussion_Point_Id,User_Id,LikeDisLike) SELECT "+id+","+GLOBAL_USER_ID+",'"+likedislike+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_likedislike WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ");
+		//tx.executeSql(
+		//		"INSERT INTO discussion_points_likedislike (Discussion_Point_Id,User_Id,LikeDisLike) SELECT "+id+","+GLOBAL_USER_ID+",'"+likedislike+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_likedislike WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
+		//	[], app.onSuccess, app.onError);
+			
 		tx.executeSql(
-				"INSERT INTO discussion_points_likedislike (Discussion_Point_Id,User_Id,LikeDisLike) SELECT "+id+","+GLOBAL_USER_ID+",'"+likedislike+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_likedislike WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
-			[], app.onSuccess, app.onError);
-	  });
+			"INSERT INTO discussion_points_likedislike (Discussion_Point_Id,User_Id,LikeDisLike) VALUES ('"+id+"','"+GLOBAL_USER_ID+"','"+likedislike+"')",
+		[], app.onSuccess, app.onError);
+
+		});
 }
 
 app.updateDiscussionUsefulNonUseful = function(id,usefulnonuseful){
 	app.db.transaction(function(tx) {
-		tx.executeSql("UPDATE discussion_points_usefulnonuseful SET UserfulNonUseful = '"+usefulnonuseful+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
+		//tx.executeSql("UPDATE discussion_points_usefulnonuseful SET UserfulNonUseful = '"+usefulnonuseful+"' WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+"");
+		//tx.executeSql(
+		//		"INSERT INTO discussion_points_usefulnonuseful (Discussion_Point_Id,User_Id,UserfulNonUseful) SELECT "+id+","+GLOBAL_USER_ID+",'"+usefulnonuseful+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_usefulnonuseful WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
+		//	[], app.onSuccess, app.onError);
+			
 		tx.executeSql(
-				"INSERT INTO discussion_points_usefulnonuseful (Discussion_Point_Id,User_Id,UserfulNonUseful) SELECT "+id+","+GLOBAL_USER_ID+",'"+usefulnonuseful+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_usefulnonuseful WHERE Discussion_Point_Id = "+id+" AND User_Id = "+GLOBAL_USER_ID+" ); ",
-			[], app.onSuccess, app.onError);
+			"INSERT INTO discussion_points_usefulnonuseful (Discussion_Point_Id,User_Id,UserfulNonUseful) VALUES ('"+id+"','"+GLOBAL_USER_ID+"','"+usefulnonuseful+"')",
+		[], app.onSuccess, app.onError);
 	  });
 }
 
@@ -162,21 +184,77 @@ app.prepareDiscusssionTables = function(callback)
 		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points_answer (Id integer primary key AUTOINCREMENT,Discussion_Point_Id integer,User_Id integer,Answer text);");
 		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points_usefulnonuseful (Id integer primary key AUTOINCREMENT,Discussion_Point_Id integer,User_Id integer,UserfulNonUseful text);");
 		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points_view (Id integer primary key AUTOINCREMENT,Discussion_Point_Id integer,User_Id integer,ViewDate text);");
+		  
+		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points_answer_likedislike (Id integer primary key AUTOINCREMENT,Discussion_Point_Answer_Id integer,User_Id integer,LikeDisLike text);");
+		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points_answer_usefulnonuseful (Id integer primary key AUTOINCREMENT,Discussion_Point_Answer_Id integer,User_Id integer,UserfulNonUseful text);");
+		  
 		  tx.executeSql("CREATE TABLE IF NOT EXISTS discussion_points (Id integer primary key AUTOINCREMENT, Discussion_Title_Point text,Discussion_Point text);",callback(),app.onError);
 		 });
 }
 
 app.createDefaultUsers = function(){
-	
-	console.log("Creat User");
-	
 	app.db.transaction(function(tx) {
 				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin');");
 				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin2' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin2');");
 				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin3' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin3');");
-				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin4' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin4');");
-				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin5' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin5');");
-				  tx.executeSql("INSERT INTO Users (UserName) SELECT 'Admin6' WHERE NOT EXISTS (SELECT 1 FROM Users WHERE UserName = 'Admin6');");
 		 });
 }
+
+app.updateAnswerLikeDislike = function(answerId,likedislike){
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			"INSERT INTO discussion_points_answer_likedislike (Discussion_Point_Answer_Id,User_Id,LikeDisLike) VALUES ('"+answerId+"','"+GLOBAL_USER_ID+"','"+likedislike+"')",
+		[], app.onSuccess, app.onError);
+		});
+}
+
+app.updateAnswerUsefulNonUseful = function(answerId,usefulnonuseful){
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			"INSERT INTO discussion_points_answer_usefulnonuseful (Discussion_Point_Answer_Id,User_Id,UserfulNonUseful) VALUES ('"+answerId+"','"+GLOBAL_USER_ID+"','"+usefulnonuseful+"')",
+		[], app.onSuccess, app.onError);
+	  });
+}
+
+app.countDiscussionUsefulNonUseful = function(discussionId,usefulNonUseful,callback){
+	$.mobile.loading('show');
+	var query = "SELECT COUNT(UserfulNonUseful) as 'Count' From discussion_points_usefulnonuseful WHERE UserfulNonUseful = '"+usefulNonUseful+"' AND Discussion_Point_Id = '"+discussionId+"'";
+	console.log(query);
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			 query, [], function(transaction, result){app.onSuccessWithCallbackReturnResult(transaction,result,callback);}, app.onError);
+	  });
+}
+
+app.countDiscussionLikeDisLike = function(discussionId,likeDislikeValue,callback){
+	$.mobile.loading('show');
+	var query = "SELECT COUNT(LikeDisLike) as 'Count' From discussion_points_likedislike WHERE LikeDisLike = '"+likeDislikeValue+"' AND Discussion_Point_Id = '"+discussionId+"'";
+	console.log(query);
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			 query, [], function(transaction, result){app.onSuccessWithCallbackReturnResult(transaction,result,callback);}, app.onError);
+	  });
+}
+
+app.countAnswerUsefulNonUseful = function(answerId,usefulNonUseful,callback){
+	$.mobile.loading('show');
+	var query = "SELECT COUNT(UserfulNonUseful) as 'Count' From discussion_points_answer_usefulnonuseful WHERE UserfulNonUseful = '"+usefulNonUseful+"' AND Discussion_Point_Answer_Id = '"+answerId+"'";
+	console.log(query);
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			 query, [], function(transaction, result){app.onSuccessWithCallbackReturnResultAndId(transaction,result,callback,answerId);}, app.onError);
+	  });
+}
+
+app.countAnswerLikeDisLike = function(answerId,likeDislikeValue,callback){
+	$.mobile.loading('show');
+	var query = "SELECT COUNT(LikeDisLike) as 'Count' From discussion_points_answer_likedislike WHERE LikeDisLike = '"+likeDislikeValue+"' AND Discussion_Point_Answer_Id = '"+answerId+"'";
+	console.log(query);
+	app.db.transaction(function(tx) {
+		tx.executeSql(
+			 query, [], function(transaction, result){app.onSuccessWithCallbackReturnResultAndId(transaction,result,callback,answerId);}, app.onError);
+	  });
+}
+
+
 

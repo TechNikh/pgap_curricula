@@ -18,6 +18,9 @@ var EXPLORER_PAGE_NAME = "explorer.html";
 var DISCUSS_PAGE_NAME = "discuss.html";
 var DISCUSS_LISTVIEW_ID = "question-list";
 var DISCUSSION_VIEWER_PAGE_ID = "list-discussion-page";
+var DISCUSSION_ANSWER_VIEWER_PAGE_ID = "list-discussion-answer-page";
+var DISCUSS_ANSWER_LISTVIEW_ID = "answer-list";
+
 var DISCUSSION_LIKE_BUTTON_PREFIX = "btnLike";
 var DISCUSSION_DISLIKE_BUTTON_PREFIX = "btnDislike";
 var DISCUSSION_ANSWER_BUTTON_PREFIX = "btnAnswer";
@@ -43,7 +46,7 @@ var DISCUSSION_NONUSEFUL_VALUE = "0";
 var DISCUSSION_USEFUL_BUTTON_PREFIX = "btnUseful";
 var DISCUSSION_NONUSEFUL_BUTTON_PREFIX = "btnNonUseful";
 
-
+var GLOBAL_CURRENT_QUE_ID = "";
 
 var GLOBAL_USER_ID = "2";
 

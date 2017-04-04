@@ -60,7 +60,8 @@ var Application = {
           }
           Application.initListExplorerPage(categParent);
         })
-		.on('pageinit','#' + DISCUSSION_VIEWER_PAGE_ID,function() {Application.initDiscussionPage();});
+		.on('pageinit','#' + DISCUSSION_VIEWER_PAGE_ID,function() {Application.initDiscussionPage();})
+		.on('pageinit','#' + DISCUSSION_ANSWER_VIEWER_PAGE_ID,function(event) {Application.initDiscussionDetailPage();});
 		
     Application.openLinksInApp();
     if (window.localStorage.getItem(INSTALLATION_CHECK_VALUE) != undefined) {
@@ -660,66 +661,54 @@ var Application = {
   },
   
   initDiscussionPage : function() {
-  	GAPageLoad();
-	//LoadData();
-	app.prepareDiscusssionTables(LoadData);
+		GAPageLoad();
+		app.prepareDiscusssionTables(LoadData);
 
-	function GAPageLoad()
-	{
-		try {
-			_gaq.push([GA_NAME_PAGE_LOAD, GA_ID_PAGE_LOAD]);
-			if ($.mobile.activePage.attr("data-url")) {
-				_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
-			} else {
-				_gaq.push(['_trackPageview']);
-			}
-		} catch(err) { console.log(err);}
-	}
+		function GAPageLoad()
+		{
+			try {
+				_gaq.push([GA_NAME_PAGE_LOAD, GA_ID_PAGE_LOAD]);
+				if ($.mobile.activePage.attr("data-url")) {
+					_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
+				} else {
+					_gaq.push(['_trackPageview']);
+				}
+			} catch(err) { console.log(err);}
+		}
 	
-	function GAAddQuestion()
-	{
-		try {
-			_gaq.push([GA_NAME_ADD_QUESTION, GA_ID_ADD_QUESTION]);
-			if ($.mobile.activePage.attr("data-url")) {
-				_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
-			} else {
-				_gaq.push(['_trackPageview']);
-			}
-		} catch(err) { console.log(err);}
-	}
+		function GAAddQuestion()
+		{
+			try {
+				_gaq.push([GA_NAME_ADD_QUESTION, GA_ID_ADD_QUESTION]);
+				if ($.mobile.activePage.attr("data-url")) {
+					_gaq.push(['_trackPageview', $.mobile.activePage.attr("data-url")]);
+				} else {
+					_gaq.push(['_trackPageview']);
+				}
+			} catch(err) { console.log(err);}
+		}
 		
-	$('#ask-form').submit(
-		function(event) {
-		  app.db = window.sqlitePlugin.openDatabase({
-            name : DATABASE_NAME,
-            location : 'default'
-          });
-		  var askValue = $('textarea#question').val();
-		  var title = $('input#questionTitle').val();
-		  app.insertDiscussionPoints(title,askValue,LoadData);
-		  $('textarea#question').val('');
-		  $('input#questionTitle').val('');
-		   navigator.notification.alert('Your question saved sucessfully.');
-		   //LoadData();
-		   GAAddQuestion();
-        });
+		$('#ask-form').submit(
+			function(event) {
+			  app.db = window.sqlitePlugin.openDatabase({
+				name : DATABASE_NAME,
+				location : 'default'
+			  });
+			  var askValue = $('textarea#question').val();
+			  var title = $('input#questionTitle').val();
+			  app.insertDiscussionPoints(title,askValue,LoadData);
+			  $('textarea#question').val('');
+			  $('input#questionTitle').val('');
+			   navigator.notification.alert('Your question saved sucessfully.');
+			   //LoadData();
+			   GAAddQuestion();
+			}
+		);
 
 		function LoadData()
 		{
 			LoadData('');
 		}
-		
-		function getParameterByName(name, url) {
-				if (!url) {
-				  url = window.location.href;
-				}
-				name = name.replace(/[\[\]]/g, "\\$&");
-				var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-					results = regex.exec(url);
-				if (!results) return null;
-				if (!results[2]) return '';
-				return decodeURIComponent(results[2].replace(/\+/g, " "));
-			}
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_RECENT_POSTED, function() {
 			LoadData(DISCUSSION_FILTER_RECENT_POSTED);
@@ -760,174 +749,15 @@ var Application = {
 			LoadData(DISCUSSION_FILTER_MOST_VIEW);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
-
-		
-		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.like', function() {
-			var btnId = $(this).attr('id');
-			var discussionId = btnId.replace(DISCUSSION_LIKE_BUTTON_PREFIX,'');
-			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_LIKE_VALUE);
-			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
-			//$('#'+btnId).button('refresh');
-			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
-			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).button("refresh");
-			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).button("refresh");
-		});
-		
-		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.useful', function() {
-			var btnId = $(this).attr('id');
-			var discussionId = btnId.replace(DISCUSSION_USEFUL_BUTTON_PREFIX,'');
-			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_USEFUL_VALUE);
-			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
-			//$('#'+btnId).button('refresh');
-			$('#'+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
-			$('#'+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId).button("refresh");
-			$('#'+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId).button("refresh");
-		});
-		
-		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.dislike', function() {
-			var btnId = $(this).attr('id');
-			var discussionId = btnId.replace(DISCUSSION_DISLIKE_BUTTON_PREFIX,'');
-			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_DISLIKE_VALUE);
-			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
-			//$('#'+btnId).button('refresh');
-			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
-			$('#'+DISCUSSION_DISLIKE_BUTTON_PREFIX+discussionId).button('refresh');
-			$('#'+DISCUSSION_LIKE_BUTTON_PREFIX+discussionId).button('refresh');
-		});
-		
-		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.nonuseful', function() {
-			var btnId = $(this).attr('id');
-			var discussionId = btnId.replace(DISCUSSION_NONUSEFUL_BUTTON_PREFIX,'');
-			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_NONUSEFUL_VALUE);
-			$('#'+btnId).addClass(ACTIVE_BUTTON_CLASS);
-			//$('#'+btnId).button('refresh');
-			$('#'+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId).removeClass(ACTIVE_BUTTON_CLASS);
-			$('#'+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId).button('refresh');
-			$('#'+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId).button('refresh');
-		});
 		
 		$('#'+DISCUSS_LISTVIEW_ID).on('click', '.answer', function() {
-			console.log("AAAAAAnswer");
+			var btnId = $(this).attr('id');
+			var discussionId = btnId.replace('btnDisAnswer','');
+			GLOBAL_CURRENT_QUE_ID = discussionId;
+			$.mobile.changePage("discussAnswer.html",{transition:"pop",changeHash:true});
 		});
-		
-		$(document).on('click', '.answer', function() {
-			 var btnId = $(this).attr('id');
-			 var discussionId = btnId.replace(DISCUSSION_ANSWER_BUTTON_PREFIX,'');
-			 console.log("answer");
-			 var answerValue = $('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX+discussionId).val();
-			 console.log(answerValue);
-			 //alert(answerValue);
-			 app.updateDiscussionAnswer(discussionId,answerValue);
-			 $('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX+discussionId).val('');
-			 $('#popupAnswer'+discussionId).popup("close");
-		});
-		
-		
-		//$( "#set" ).on( "collapsibleexpand", function( event, ui ) {
-			//alert("set");
-		//} );
-		
-		$( "#question-list" ).on( "collapsibleexpand", function( event, ui ) {
-				var itemId = $(event.target).attr('id');
-				var discussionId = itemId.replace('set','');
-				var divId = itemId.replace("set", "answerDiv");
-				
-				//fetch user wise data and loop on that and display in answerd div
-				$.mobile.loading('show');	
-				var html = "";
-				app.db = window.sqlitePlugin.openDatabase({
-				  name : DATABASE_NAME,
-				  location : 'default'
-				});
-				app.db.transaction(function(transaction) {
-					
-				var today = new Date();
-				var dd = today.getDate();
-				var mm = today.getMonth()+1; //January is 0!
-				var yyyy = today.getFullYear();
 
-				if(dd<10) {
-					dd='0'+dd
-				} 
-				if(mm<10) {
-					mm='0'+mm
-				} 
-				today = dd+'/'+mm+'/'+yyyy;
-					
-				var query = "SELECT u.Id as UserId ,u.UserName, dp.Discussion_Title_Point , dp.Discussion_Point , dpa.Answer , dpl.LikeDisLike , dpu.UserfulNonUseful "
-								+"FROM Users u "
-								+"LEFT JOIN discussion_points dp ON dp.Id = '"+discussionId+"' "
-								+"LEFT JOIN discussion_points_answer dpa on dpa.Discussion_Point_Id = dp.Id AND u.Id = dpa.User_Id "
-								+"LEFT JOIN discussion_points_likedislike dpl on dpl.Discussion_Point_Id = dp.Id AND u.Id = dpl.User_Id "
-								+"LEFT JOIN discussion_points_usefulnonuseful dpu on dpu.Discussion_Point_Id = dp.Id AND u.Id = dpu.User_Id " 
-								+"WHERE dpa.Answer IS not null OR dpl.LikeDisLike IS NOT NULL OR dpu.UserfulNonUseful IS NOT NULL ;";
-						
-					transaction.executeSql(
-							query, [], function(tx,
-							results) {
-								
-								console.log(query);
-								
-								var queryView = "INSERT INTO discussion_points_view (Discussion_Point_Id,User_Id,ViewDate) SELECT "+discussionId+","+GLOBAL_USER_ID+",'"+today+"' WHERE NOT EXISTS (SELECT 1 FROM discussion_points_view WHERE Discussion_Point_Id = "+discussionId+" AND User_Id = "+GLOBAL_USER_ID+")";
-								console.log(queryView);
-								transaction.executeSql(queryView);
-								
-								$.mobile.loading('show');	
-							var len = results.rows.length, i;
-							
-							console.log(len);
-							
-							for (i = 0; i < len; i++) {
-							console.log("query fire");
-							var userName = results.rows.item(i).UserName;
-							var answer = results.rows.item(i).Answer;
-							var likeDislike = results.rows.item(i).LikeDisLike;
-							var usefulNonUseful = results.rows.item(i).UserfulNonUseful;
-							
-							if(likeDislike == DISCUSSION_LIKE_VALUE)
-							{
-								likeDislike = "Like";
-							}else if(likeDislike == DISCUSSION_DISLIKE_VALUE)
-							{
-								likeDislike = "Dis-Like";
-							}
-							
-							if(usefulNonUseful == DISCUSSION_USEFUL_VALUE)
-							{
-								usefulNonUseful = "Useful";
-							}else if(usefulNonUseful == DISCUSSION_NONUSEFUL_VALUE)
-							{
-								usefulNonUseful = "Non-Useful";
-							}
-							
-							html +="<div class='card' style='background: #FFF;border: 1px solid #AAA;box-shadow: 0px 2px 3px 0px #AAA;padding: 0px;margin-top: 15px;margin-right: 7.5px;margin-bottom: 15px;margin-left: 7.5px;overflow: hidden;border-radius: 3px;'>";
-							html +="<table style='margin: 0px; padding: 10px;'>";
-							html += "<tr><td style='text-align: left;'><b> User </b></td><td>"+userName+"</td>";
-							if(answer != "" && answer != undefined)
-							{
-								html +="<tr><td style='text-align: left;'><b>Answer </b></td><td>"+answer+"</td>";
-							}
-							if(likeDislike != "" && likeDislike != undefined)
-							{
-								html +="<tr><td style='text-align: left;'><b>Like / Dislike </b></td><td>"+likeDislike+"</td>";
-							}
-							if(usefulNonUseful != "" && usefulNonUseful != undefined)
-							{
-								html +="<tr><td style='text-align: left;'><b>Useful / Non-Useful </b></td><td>"+usefulNonUseful+"</td>";
-							}
-							html +="</table></div>";
-							
-							}
-								$('#'+divId).html(html);
-								$.mobile.loading('hide');	
-							},null);});
-							
-							$.mobile.loading('hide');
-				
-		});
-		
-				function LoadData(filterByPar)
-		{
+		function LoadData(filterByPar){
 			$.mobile.loading('show');	
 			app.db = window.sqlitePlugin.openDatabase({
 			  name : DATABASE_NAME,
@@ -948,7 +778,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountDislike',Discussion_Point_Id From discussion_points_likedislike WHERE LikeDisLike = '"+DISCUSSION_DISLIKE_VALUE+"' GROUP BY Discussion_Point_Id ) dpdislike on dp.Id = dpdislike.Discussion_Point_Id "
 							+ "LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountBlank',Discussion_Point_Id From discussion_points_likedislike WHERE LikeDisLike = '' OR LikeDisLike IS NULL GROUP BY Discussion_Point_Id ) dpblank on dp.Id = dpblank.Discussion_Point_Id "
 							+ "ORDER BY  dplike.CountLike Desc,dpdislike.CountDislike Desc,dpblank.CountBlank Desc";
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_LIKE_VALUE+"'";
 					break;
 				case DISCUSSION_FILTER_MOST_DISLIKED:
 						query = "SELECT dp.*,dplike.CountLike,dpdislike.CountDislike,dpblank.CountBlank FROM discussion_points dp "
@@ -956,8 +785,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountDislike',Discussion_Point_Id From discussion_points_likedislike WHERE LikeDisLike = '"+DISCUSSION_DISLIKE_VALUE+"' GROUP BY Discussion_Point_Id) dpdislike on dp.Id = dpdislike.Discussion_Point_Id "
 							+ "LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountBlank',Discussion_Point_Id From discussion_points_likedislike WHERE LikeDisLike = '' OR LikeDisLike IS NULL GROUP BY Discussion_Point_Id) dpblank on dp.Id = dpblank.Discussion_Point_Id "
 							+ "ORDER BY  dpdislike.CountDislike Desc,dplike.CountLike Desc,dpblank.CountBlank Desc";
-							
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_DISLIKE_VALUE+"'";
 					break;
 					
 				case DISCUSSION_FILTER_MOST_USEFUL:
@@ -966,7 +793,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountNonUseful',Discussion_Point_Id From discussion_points_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_NONUSEFUL_VALUE+"' GROUP BY Discussion_Point_Id) dpnonuseful on dp.Id = dpnonuseful.Discussion_Point_Id "
 							+ "LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountBlank',Discussion_Point_Id From discussion_points_usefulnonuseful WHERE UserfulNonUseful = '' OR UserfulNonUseful IS NULL GROUP BY Discussion_Point_Id) dpblank on dp.Id = dpblank.Discussion_Point_Id "
 							+ "ORDER BY  dpuseful.CountUseful Desc,dpnonuseful.CountNonUseful Desc,dpblank.CountBlank Desc";
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_USEFUL_VALUE+"'";
 					break;
 					
 				case DISCUSSION_FILTER_MOST_NON_USEFUL:
@@ -975,8 +801,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountNonUseful',Discussion_Point_Id From discussion_points_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_NONUSEFUL_VALUE+"' GROUP BY Discussion_Point_Id) dpnonuseful on dp.Id = dpnonuseful.Discussion_Point_Id "
 							+ "LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountBlank',Discussion_Point_Id From discussion_points_usefulnonuseful WHERE UserfulNonUseful = '' OR UserfulNonUseful IS NULL  GROUP BY Discussion_Point_Id) dpblank on dp.Id = dpblank.Discussion_Point_Id "
 							+ "ORDER BY  dpnonuseful.CountNonUseful Desc,dpuseful.CountUseful Desc,dpblank.CountBlank Desc";
-							
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer = '"+DISCUSSION_NONUSEFUL_VALUE+"'";
 					break;
 					
 				case DISCUSSION_FILTER_UN_ANSWERED:
@@ -984,8 +808,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT * From discussion_points_answer ) dpunanswer on dp.Id = dpunanswer.Discussion_Point_Id "
 							+" WHERE dpunanswer.Answer is null "
 							+ "ORDER BY dp.Id Desc";
-					
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer IS NULL";
 					break;
 				
 				case DISCUSSION_FILTER_MOST_ANSWERED:
@@ -993,8 +815,6 @@ var Application = {
 							+ "LEFT JOIN  (SELECT COUNT(Answer) as 'CountAnswer',Discussion_Point_Id From discussion_points_answer WHERE Answer != '' AND Answer IS NOT NULL GROUP BY Discussion_Point_Id) dpanswer on dp.Id = dpanswer.Discussion_Point_Id "
 							+ "LEFT JOIN  (SELECT COUNT(Answer) as 'CountUnanswer',Discussion_Point_Id From discussion_points_answer WHERE Answer = '' OR Answer IS NULL GROUP BY Discussion_Point_Id) dpunanswer on dp.Id = dpunanswer.Discussion_Point_Id "
 							+ "ORDER BY  dpanswer.CountAnswer Desc,dpunanswer.CountUnanswer Desc";
-					
-					//query = "SELECT discussion_points.* FROM discussion_points WHERE Answer IS NULL";
 					break;
 				case DISCUSSION_FILTER_MOST_VIEW:
 						query = "SELECT dp.*,dpv.CountView FROM discussion_points dp "
@@ -1023,41 +843,244 @@ var Application = {
 											+ "</h3><p>"+discussionDescription 
 											+ "</p>"
 											+"<form>"
-											+"<a href='#' data-inline='true' data-role='button' class='like "+likeActiveClass+"' id='btnLike"+discussionId+"'>Like</a>"
-											+" <a href='#' data-inline='true' data-role='button' class='dislike "+dislikeActiveClass+"' id='btnDislike"+discussionId+"'>Dislike</a>"
+											//+"<a href='#' data-inline='true' data-role='button' class='like "+likeActiveClass+"' id='btnLike"+discussionId+"'>Like</a>"
+											//+"<a href='#' data-inline='true' data-role='button' class='dislike "+dislikeActiveClass+"' id='btnDislike"+discussionId+"'>Dislike</a>"
 											
-											+"<a href='#' data-inline='true' data-role='button' class='useful "+likeActiveClass+"' id='"+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId+"'>Useful</a>"
-											+" <a href='#' data-inline='true' data-role='button' class='nonuseful "+dislikeActiveClass+"' id='"+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId+"'>Non - Useful</a>"
-											
-											 +" <a href='#popupAnswer"+discussionId+"' data-position-to='window' data-rel='popup' data-transition='pop' class='ui-btn ui-corner-all ui-shadow ui-btn-inline'>Answer</a>"
-											+ " <div data-role='popup' id='popupAnswer"+discussionId+"' data-theme='a' class='divpopup ui-corner-all' data-dismissible='false'>"
-												 +" <a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"
+											//+"<a href='#' data-inline='true' data-role='button' class='useful "+likeActiveClass+"' id='"+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId+"'>Useful</a>"
+											//+"<a href='#' data-inline='true' data-role='button' class='nonuseful "+dislikeActiveClass+"' id='"+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId+"'>Non - Useful</a>"
+											+"<a href='#' data-inline='true' data-role='button' class='answer ' id='btnDisAnswer"+discussionId+"'>Answer</a>"
+											//+"<a href='discussAnswer.html?questionId="+discussionId+"' data-role='button' class='ui-btn ui-corner-all ui-shadow ui-btn-inline'>Answer</a>"
+											 
+											//+ " <div data-role='popup' id='popupAnswer"+discussionId+"' data-theme='a' class='divpopup ui-corner-all' data-dismissible='false'>"
+												// +" <a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"
 													//+" <form id='ask-form"+discussionId+"' name='ask-form"+discussionId+"' action='discuss.html'>"
-														+" <div style='padding:10px 20px;'>"
-															+" <h3>Please add answer</h3>"
-															+" <textarea cols='60' rows='15' name='answer"+discussionId+"' id='"+DISCUSSION_ANSWER_TEXTAREA_PREFIX + discussionId+"' value='' placeholder='Answer' data-theme='a'></textarea>"
-															+" <a href='#' data-inline='true' data-role='button' class='answer "+dislikeActiveClass+"' id='"+DISCUSSION_ANSWER_BUTTON_PREFIX+discussionId+"'>Save</a>"
+													//	+" <div style='padding:10px 20px;'>"
+														//	+" <h3>Please add answer</h3>"
+															//+" <textarea cols='60' rows='15' name='answer"+discussionId+"' id='"+DISCUSSION_ANSWER_TEXTAREA_PREFIX + discussionId+"' value='' placeholder='Answer' data-theme='a'></textarea>"
+															//+" <a href='#' data-inline='true' data-role='button' class='answer "+dislikeActiveClass+"' id='"+DISCUSSION_ANSWER_BUTTON_PREFIX+discussionId+"'>Save</a>"
 															// +" <button type='submit'  class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check'>Submit</button>"
-														+" </div>"
+														//+" </div>"
 													//+" </form>"
-												+" </div>"
+												//+" </div>"
 											+"</form>"
 											+"<div id='answerDiv" + discussionId + "'+></div></div></li>";
 						$("#"+DISCUSS_LISTVIEW_ID).append(content);
-						
-						//var modelPopupHTML = ;
-						//console.log(modelPopupHTML);
-						//$("#modelPopupContent").append(modelPopupHTML);
-						//.collapsibleset("refresh");
 				}	
 				}
-				//var collapsibleSet=$("#set");
-                //collapsibleSet.trigger('create');
-				//$("#modelPopupContent").trigger("create");
 				$("#"+DISCUSS_LISTVIEW_ID).trigger("create");
 				
 				$.mobile.loading('hide');	   
 				},null);});
 		}
 	},
-};
+	
+  initDiscussionDetailPage : function() {
+	  
+	  LoadDiscussionDetailData();
+	  
+	  function LoadDiscussionDetailData()
+		{
+			var questionId = GLOBAL_CURRENT_QUE_ID; 
+			
+			app.countDiscussionLikeDisLike(questionId,DISCUSSION_LIKE_VALUE,UpdateLikeCount);
+			app.countDiscussionLikeDisLike(questionId,DISCUSSION_DISLIKE_VALUE,UpdateDislikeCount);
+			app.countDiscussionUsefulNonUseful(questionId,DISCUSSION_USEFUL_VALUE,UpdateUsefulCount);
+			app.countDiscussionUsefulNonUseful(questionId,DISCUSSION_NONUSEFUL_VALUE,UpdateNonUsefulCount);
+			
+			$.mobile.loading('show');	
+			app.db = window.sqlitePlugin.openDatabase({
+			  name : DATABASE_NAME,
+			  location : 'default'
+			});
+			app.db.transaction(function(transaction) {
+			
+			var filterBy = '';
+			
+			var query = "SELECT * FROM discussion_points WHERE Id = '"+GLOBAL_CURRENT_QUE_ID+"'";
+			
+			
+			transaction.executeSql(
+            query, [], function(tx,
+			results) {
+
+				var discussionId = results.rows.item(0).Id;
+				var discussionTitle = results.rows.item(0).Discussion_Title_Point;
+				var discussionDescription = results.rows.item(0).Discussion_Point;
+
+				$("#discussionTitle").html(discussionTitle);
+				$("#discussionDescription").html(discussionDescription);
+				
+				//var answerQuery = "SELECT * FROM discussion_points_answer WHERE Discussion_Point_Id = '"+GLOBAL_CURRENT_QUE_ID+"'";	
+				
+				var answerQuery = "SELECT dpa.*,dpalike.CountLike,dpadislike.CountDisLike,dpauseful.CountUseful,dpanonuseful.CountNonUseful FROM discussion_points_answer dpa"
+									+" LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountLike',Discussion_Point_Answer_Id From discussion_points_answer_likedislike WHERE LikeDisLike = '"+DISCUSSION_LIKE_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpalike on dpa.Id = dpalike.Discussion_Point_Answer_Id "
+									+" LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountDisLike',Discussion_Point_Answer_Id From discussion_points_answer_likedislike WHERE LikeDisLike = '"+DISCUSSION_DISLIKE_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpadislike on dpa.Id = dpadislike.Discussion_Point_Answer_Id "
+									+" LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountUseful',Discussion_Point_Answer_Id From discussion_points_answer_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_USEFUL_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpauseful on dpa.Id = dpauseful.Discussion_Point_Answer_Id "
+									+" LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountNonUseful',Discussion_Point_Answer_Id From discussion_points_answer_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_NONUSEFUL_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpanonuseful on dpa.Id = dpanonuseful.Discussion_Point_Answer_Id "
+									+" WHERE Discussion_Point_Id = '"+GLOBAL_CURRENT_QUE_ID+"'";
+
+				console.log(answerQuery);
+				transaction.executeSql(
+				answerQuery, [], function(tx,
+				answerResults) {
+				
+					var len = answerResults.rows.length, i;
+					
+					  $("#"+DISCUSS_ANSWER_LISTVIEW_ID).empty();
+					  for (i = 0; i < len; i++) {
+						var answerId = answerResults.rows.item(i).Id;
+						var answer = answerResults.rows.item(i).Answer;
+						var likeCount = answerResults.rows.item(i).CountLike;
+						var disLikeCount = answerResults.rows.item(i).CountDisLike;
+						var usefulCount = answerResults.rows.item(i).CountUseful;
+						var nonUsefulCount = answerResults.rows.item(i).CountNonUseful;
+						
+						if(answer == 'undefined'){answer = "";}
+						if(likeCount == '0' || likeCount == 'null' || likeCount == 'undefined'){likeCount = '';}
+						if(disLikeCount == '0' || disLikeCount == 'null' || disLikeCount == 'undefined' ){disLikeCount = '';}
+					  if(usefulCount == '0' || usefulCount == 'null' || usefulCount == 'undefined'){usefulCount = '';}
+						if(nonUsefulCount == '0' || nonUsefulCount == 'null' || nonUsefulCount == 'undefined'){nonUsefulCount = '';}
+						  
+						if(answer != '')
+						{
+							var content = "<li id="+answerId+" ><div data-role='collapsible' id='setAnswer" + answerId + "'><h3>" + answer 
+											+ "</h3><p>"+answer 
+											+ "</p>"
+											+ "<a href='#' data-inline='true' data-role='button' class='Alike ' id='btnALike"+answerId+"'>Like - <span id='lblALikeCount"+answerId+"' class='likeCount'>"+likeCount+"</span></a>"
+											+ "<a href='#' data-inline='true' data-role='button' class='Adislike ' id='btnADislike"+answerId+"'>Dislike - <span id='lblADislikeCount"+answerId+"' class='dislikeCount'>"+disLikeCount+"</span></a>"
+											+ "<a href='#' data-inline='true' data-role='button' class='Auseful ' id='btnAUseful"+answerId+"'>Useful - <span id='lblAUsefulCount"+answerId+"' class='usefulCount'>"+usefulCount+"</span></a>"
+											+ "<a href='#' data-inline='true' data-role='button' class='Anonuseful ' id='btnANonUseful"+answerId+"'>NonUseful  - <span id='lblANonUsefulCount"+answerId+"' class='nonusefulCount'>"+nonUsefulCount+"</span></a>"
+											+ "</div></li>";
+						
+							$("#"+DISCUSS_ANSWER_LISTVIEW_ID).append(content);
+						}
+					  }
+					  $("#"+DISCUSS_ANSWER_LISTVIEW_ID).trigger("create");
+					  $.mobile.loading('hide');
+				},null);
+			
+			},null);});
+		};
+
+		$('#'+DISCUSS_ANSWER_LISTVIEW_ID).on('click', '.Alike', function() {
+			var btnId = $(this).attr('id');
+			var answerId = btnId.replace('btnALike','');
+			app.updateAnswerLikeDislike(answerId,DISCUSSION_LIKE_VALUE);
+			app.countAnswerLikeDisLike(answerId,DISCUSSION_LIKE_VALUE,UpdateAnswerLikeCount);
+		});
+		
+		function UpdateAnswerLikeCount(result,answerId)
+		{
+			$('#lblALikeCount'+answerId).html(result.rows.item(0).Count);
+		}
+		
+		$('#'+DISCUSS_ANSWER_LISTVIEW_ID).on('click', '.Adislike', function() {
+			var btnId = $(this).attr('id');
+			var answerId = btnId.replace('btnADislike','');
+			app.updateAnswerUsefulNonUseful(answerId,DISCUSSION_USEFUL_VALUE);
+			app.countAnswerLikeDisLike(answerId,DISCUSSION_DISLIKE_VALUE,UpdateAnswerDisLikeCount);
+		});
+		
+		function UpdateAnswerDisLikeCount(result,answerId)
+		{
+			$('#lblADislikeCount'+answerId).html(result.rows.item(0).Count);
+		}
+				
+		$('#'+DISCUSS_ANSWER_LISTVIEW_ID).on('click', '.Auseful', function() {
+			var btnId = $(this).attr('id');
+			var answerId = btnId.replace('btnAUseful','');
+			app.updateAnswerLikeDislike(answerId,DISCUSSION_DISLIKE_VALUE);
+			app.countAnswerUsefulNonUseful(answerId,DISCUSSION_USEFUL_VALUE,UpdateAnswerUsefulCount);
+			
+		});
+		
+		function UpdateAnswerUsefulCount(result,answerId)
+		{
+			$('#lblAUsefulCount'+answerId).html(result.rows.item(0).Count);
+		}
+		
+		$('#'+DISCUSS_ANSWER_LISTVIEW_ID).on('click', '.Anonuseful', function() {
+			var btnId = $(this).attr('id');
+			var answerId = btnId.replace('btnANonUseful','');
+			app.updateAnswerUsefulNonUseful(answerId,DISCUSSION_NONUSEFUL_VALUE);
+			app.countAnswerUsefulNonUseful(answerId,DISCUSSION_NONUSEFUL_VALUE,UpdateAnswerNonUsefulCount);
+			
+		});
+		
+		function UpdateAnswerNonUsefulCount(result,answerId)
+		{
+			$('#lblANonUsefulCount'+answerId).html(result.rows.item(0).Count);
+		}
+
+		$('#btndetailDiscussionLike').click(function()
+		{
+			var discussionId = GLOBAL_CURRENT_QUE_ID;
+			console.log("Like Click");
+			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_LIKE_VALUE);
+			app.countDiscussionLikeDisLike(discussionId,DISCUSSION_LIKE_VALUE,UpdateLikeCount);
+			
+		});
+		
+		function UpdateLikeCount(result)
+		{
+			$('#lblLikeCount').html(result.rows.item(0).Count);
+		}
+		
+		$('#btndetailDiscussionDislike').click(function()
+		{
+			var discussionId = GLOBAL_CURRENT_QUE_ID;
+			console.log("Dislike Click");
+			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_DISLIKE_VALUE);
+			app.countDiscussionLikeDisLike(discussionId,DISCUSSION_DISLIKE_VALUE,UpdateDislikeCount);
+			
+			
+		});
+		function UpdateDislikeCount(result)
+		{
+			$('#lblDisLikeCount').html(result.rows.item(0).Count);
+		}
+		
+		
+		$('#btndetailDiscussionUseful').click(function()
+		{
+			var discussionId = GLOBAL_CURRENT_QUE_ID;
+			console.log("Useful Click");
+			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_USEFUL_VALUE);
+			app.countDiscussionUsefulNonUseful(discussionId,DISCUSSION_USEFUL_VALUE,UpdateUsefulCount);
+			
+			
+		});
+		
+		function UpdateUsefulCount(result)
+		{
+			$('#lblUsefulCount').html(result.rows.item(0).Count);
+		}
+
+		
+		$('#btndetailDiscussionNonuseful').click(function()
+		{
+			var discussionId = GLOBAL_CURRENT_QUE_ID;
+			console.log("NonUseful Click");
+			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_NONUSEFUL_VALUE);
+			app.countDiscussionUsefulNonUseful(discussionId,DISCUSSION_NONUSEFUL_VALUE,UpdateNonUsefulCount);
+			
+		});
+		
+		function UpdateNonUsefulCount(result)
+		{
+			$('#lblNonUsefulCount').html(result.rows.item(0).Count);
+		}
+		
+		
+	    $(document).on('click', '.answer', function() {
+			var answerValue = $('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX).val();
+			console.log(answerValue);
+			if(answerValue != 'undefined' && answerValue != '')
+			{
+				app.updateDiscussionAnswer(GLOBAL_CURRENT_QUE_ID,answerValue);
+			}
+			$('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX).val('');
+			$('#popupAnswer').popup("close");
+		});
+	},
+	};
