@@ -700,7 +700,6 @@ var Application = {
 			  $('textarea#question').val('');
 			  $('input#questionTitle').val('');
 			   navigator.notification.alert('Your question saved sucessfully.');
-			   //LoadData();
 			   GAAddQuestion();
 			}
 		);
@@ -710,43 +709,73 @@ var Application = {
 			LoadData('');
 		}
 		
+		function ActivateFilterButton(id)
+		{
+			$('#btnRecentlyPosted').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostLiked').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostDisliked').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostUseful').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostNonUseful').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnUnanswered').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostAnswered').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#btnMostView').removeClass(ACTIVE_BUTTON_CLASS);
+			$('#'+id).addClass(ACTIVE_BUTTON_CLASS);
+		}
+		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_RECENT_POSTED, function() {
 			LoadData(DISCUSSION_FILTER_RECENT_POSTED);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_LIKED, function() {
 			LoadData(DISCUSSION_FILTER_MOST_LIKED);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
+			
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_DISLIKED, function() {
 			LoadData(DISCUSSION_FILTER_MOST_DISLIKED);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_UN_ANSWERED, function() {
 			LoadData(DISCUSSION_FILTER_UN_ANSWERED);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_ANSWERED, function() {
 			LoadData(DISCUSSION_FILTER_MOST_ANSWERED);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_USEFUL, function() {
 			LoadData(DISCUSSION_FILTER_MOST_USEFUL);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_NON_USEFUL, function() {
 			LoadData(DISCUSSION_FILTER_MOST_NON_USEFUL);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
 		$('#'+DISCUSSION_POPUP_FILTER_ID).on('click', '.'+DISCUSSION_FILTER_MOST_VIEW, function() {
 			LoadData(DISCUSSION_FILTER_MOST_VIEW);
+			var btnId = $(this).attr('id');
+			ActivateFilterButton(btnId);
 			$('#'+DISCUSSION_POPUP_FILTER_ID).popup("close");
 		});
 		
@@ -840,30 +869,12 @@ var Application = {
 					var likeActiveClass = (discussionAnswer  == DISCUSSION_LIKE_VALUE ? ACTIVE_BUTTON_CLASS : "");
 					var dislikeActiveClass = (discussionAnswer  == DISCUSSION_DISLIKE_VALUE ? ACTIVE_BUTTON_CLASS : "");
 					var content = "<li id="+discussionId+" ><div data-role='collapsible' id='set" + discussionId + "'><h3>" + discussionTitle 
-											+ "</h3><p>"+discussionDescription 
-											+ "</p>"
-											+"<form>"
-											//+"<a href='#' data-inline='true' data-role='button' class='like "+likeActiveClass+"' id='btnLike"+discussionId+"'>Like</a>"
-											//+"<a href='#' data-inline='true' data-role='button' class='dislike "+dislikeActiveClass+"' id='btnDislike"+discussionId+"'>Dislike</a>"
-											
-											//+"<a href='#' data-inline='true' data-role='button' class='useful "+likeActiveClass+"' id='"+DISCUSSION_USEFUL_BUTTON_PREFIX+discussionId+"'>Useful</a>"
-											//+"<a href='#' data-inline='true' data-role='button' class='nonuseful "+dislikeActiveClass+"' id='"+DISCUSSION_NONUSEFUL_BUTTON_PREFIX+discussionId+"'>Non - Useful</a>"
-											+"<a href='#' data-inline='true' data-role='button' class='answer ' id='btnDisAnswer"+discussionId+"'>Answer</a>"
-											//+"<a href='discussAnswer.html?questionId="+discussionId+"' data-role='button' class='ui-btn ui-corner-all ui-shadow ui-btn-inline'>Answer</a>"
-											 
-											//+ " <div data-role='popup' id='popupAnswer"+discussionId+"' data-theme='a' class='divpopup ui-corner-all' data-dismissible='false'>"
-												// +" <a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"
-													//+" <form id='ask-form"+discussionId+"' name='ask-form"+discussionId+"' action='discuss.html'>"
-													//	+" <div style='padding:10px 20px;'>"
-														//	+" <h3>Please add answer</h3>"
-															//+" <textarea cols='60' rows='15' name='answer"+discussionId+"' id='"+DISCUSSION_ANSWER_TEXTAREA_PREFIX + discussionId+"' value='' placeholder='Answer' data-theme='a'></textarea>"
-															//+" <a href='#' data-inline='true' data-role='button' class='answer "+dislikeActiveClass+"' id='"+DISCUSSION_ANSWER_BUTTON_PREFIX+discussionId+"'>Save</a>"
-															// +" <button type='submit'  class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check'>Submit</button>"
-														//+" </div>"
-													//+" </form>"
-												//+" </div>"
-											+"</form>"
-											+"<div id='answerDiv" + discussionId + "'+></div></div></li>";
+										+ "</h3><p>"+discussionDescription 
+										+ "</p>"
+										+"<form>"
+										+"<a href='#' data-inline='true' data-role='button' class='answer ' id='btnDisAnswer"+discussionId+"'>Answer</a>"
+										+"</form>"
+										+"<div id='answerDiv" + discussionId + "'+></div></div></li>";
 						$("#"+DISCUSS_LISTVIEW_ID).append(content);
 				}	
 				}
@@ -876,9 +887,10 @@ var Application = {
 	
   initDiscussionDetailPage : function() {
 	  
+	  
 	  LoadDiscussionDetailData();
 	  
-	  function LoadDiscussionDetailData()
+	    function LoadDiscussionDetailData()
 		{
 			var questionId = GLOBAL_CURRENT_QUE_ID; 
 			
@@ -911,16 +923,28 @@ var Application = {
 				$("#discussionDescription").html(discussionDescription);
 				
 				//var answerQuery = "SELECT * FROM discussion_points_answer WHERE Discussion_Point_Id = '"+GLOBAL_CURRENT_QUE_ID+"'";	
+				LoadAnswerList();
 				
-				var answerQuery = "SELECT dpa.*,dpalike.CountLike,dpadislike.CountDisLike,dpauseful.CountUseful,dpanonuseful.CountNonUseful FROM discussion_points_answer dpa"
+			},null);});
+		};
+		
+		function LoadAnswerList()
+		{
+			$.mobile.loading('show');
+			var answerQuery = "SELECT dpa.*,dpalike.CountLike,dpadislike.CountDisLike,dpauseful.CountUseful,dpanonuseful.CountNonUseful FROM discussion_points_answer dpa"
 									+" LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountLike',Discussion_Point_Answer_Id From discussion_points_answer_likedislike WHERE LikeDisLike = '"+DISCUSSION_LIKE_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpalike on dpa.Id = dpalike.Discussion_Point_Answer_Id "
 									+" LEFT JOIN  (SELECT COUNT(LikeDisLike) as 'CountDisLike',Discussion_Point_Answer_Id From discussion_points_answer_likedislike WHERE LikeDisLike = '"+DISCUSSION_DISLIKE_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpadislike on dpa.Id = dpadislike.Discussion_Point_Answer_Id "
 									+" LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountUseful',Discussion_Point_Answer_Id From discussion_points_answer_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_USEFUL_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpauseful on dpa.Id = dpauseful.Discussion_Point_Answer_Id "
 									+" LEFT JOIN  (SELECT COUNT(UserfulNonUseful) as 'CountNonUseful',Discussion_Point_Answer_Id From discussion_points_answer_usefulnonuseful WHERE UserfulNonUseful = '"+DISCUSSION_NONUSEFUL_VALUE+"' GROUP BY Discussion_Point_Answer_Id ) dpanonuseful on dpa.Id = dpanonuseful.Discussion_Point_Answer_Id "
 									+" WHERE Discussion_Point_Id = '"+GLOBAL_CURRENT_QUE_ID+"'";
 
-				console.log(answerQuery);
-				transaction.executeSql(
+				app.db = window.sqlitePlugin.openDatabase({
+			  name : DATABASE_NAME,
+			  location : 'default'
+			});
+			app.db.transaction(function(transaction) {
+			
+			transaction.executeSql(
 				answerQuery, [], function(tx,
 				answerResults) {
 				
@@ -928,6 +952,7 @@ var Application = {
 					
 					  $("#"+DISCUSS_ANSWER_LISTVIEW_ID).empty();
 					  for (i = 0; i < len; i++) {
+						  
 						var answerId = answerResults.rows.item(i).Id;
 						var answer = answerResults.rows.item(i).Answer;
 						var likeCount = answerResults.rows.item(i).CountLike;
@@ -936,11 +961,11 @@ var Application = {
 						var nonUsefulCount = answerResults.rows.item(i).CountNonUseful;
 						
 						if(answer == 'undefined'){answer = "";}
-						if(likeCount == '0' || likeCount == 'null' || likeCount == 'undefined'){likeCount = '';}
-						if(disLikeCount == '0' || disLikeCount == 'null' || disLikeCount == 'undefined' ){disLikeCount = '';}
-					  if(usefulCount == '0' || usefulCount == 'null' || usefulCount == 'undefined'){usefulCount = '';}
-						if(nonUsefulCount == '0' || nonUsefulCount == 'null' || nonUsefulCount == 'undefined'){nonUsefulCount = '';}
-						  
+						if(likeCount == '0' || likeCount == null || likeCount == 'undefined'){likeCount = "0";}
+						if(disLikeCount == '0' || disLikeCount == null || disLikeCount == 'undefined' ){disLikeCount = "0";}
+					    if(usefulCount == '0' || usefulCount == null || usefulCount == 'undefined'){usefulCount = "0";}
+						if(nonUsefulCount == '0' || nonUsefulCount == null || nonUsefulCount == 'undefined'){nonUsefulCount = "0";}
+						
 						if(answer != '')
 						{
 							var content = "<li id="+answerId+" ><div data-role='collapsible' id='setAnswer" + answerId + "'><h3>" + answer 
@@ -957,10 +982,8 @@ var Application = {
 					  }
 					  $("#"+DISCUSS_ANSWER_LISTVIEW_ID).trigger("create");
 					  $.mobile.loading('hide');
-				},null);
-			
-			},null);});
-		};
+				},null);});
+		}
 
 		$('#'+DISCUSS_ANSWER_LISTVIEW_ID).on('click', '.Alike', function() {
 			var btnId = $(this).attr('id');
@@ -1015,7 +1038,6 @@ var Application = {
 		$('#btndetailDiscussionLike').click(function()
 		{
 			var discussionId = GLOBAL_CURRENT_QUE_ID;
-			console.log("Like Click");
 			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_LIKE_VALUE);
 			app.countDiscussionLikeDisLike(discussionId,DISCUSSION_LIKE_VALUE,UpdateLikeCount);
 			
@@ -1029,11 +1051,8 @@ var Application = {
 		$('#btndetailDiscussionDislike').click(function()
 		{
 			var discussionId = GLOBAL_CURRENT_QUE_ID;
-			console.log("Dislike Click");
 			app.updateDiscussionLikeDislike(discussionId,DISCUSSION_DISLIKE_VALUE);
 			app.countDiscussionLikeDisLike(discussionId,DISCUSSION_DISLIKE_VALUE,UpdateDislikeCount);
-			
-			
 		});
 		function UpdateDislikeCount(result)
 		{
@@ -1044,11 +1063,8 @@ var Application = {
 		$('#btndetailDiscussionUseful').click(function()
 		{
 			var discussionId = GLOBAL_CURRENT_QUE_ID;
-			console.log("Useful Click");
 			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_USEFUL_VALUE);
 			app.countDiscussionUsefulNonUseful(discussionId,DISCUSSION_USEFUL_VALUE,UpdateUsefulCount);
-			
-			
 		});
 		
 		function UpdateUsefulCount(result)
@@ -1060,10 +1076,8 @@ var Application = {
 		$('#btndetailDiscussionNonuseful').click(function()
 		{
 			var discussionId = GLOBAL_CURRENT_QUE_ID;
-			console.log("NonUseful Click");
 			app.updateDiscussionUsefulNonUseful(discussionId,DISCUSSION_NONUSEFUL_VALUE);
 			app.countDiscussionUsefulNonUseful(discussionId,DISCUSSION_NONUSEFUL_VALUE,UpdateNonUsefulCount);
-			
 		});
 		
 		function UpdateNonUsefulCount(result)
@@ -1074,13 +1088,13 @@ var Application = {
 		
 	    $(document).on('click', '.answer', function() {
 			var answerValue = $('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX).val();
-			console.log(answerValue);
 			if(answerValue != 'undefined' && answerValue != '')
 			{
-				app.updateDiscussionAnswer(GLOBAL_CURRENT_QUE_ID,answerValue);
+				app.updateDiscussionAnswer(GLOBAL_CURRENT_QUE_ID,answerValue,LoadAnswerList);
 			}
 			$('textarea#'+DISCUSSION_ANSWER_TEXTAREA_PREFIX).val('');
 			$('#popupAnswer').popup("close");
+			 navigator.notification.alert('Your answer saved sucessfully.');
 		});
 	},
 	};
